@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { Playground } from "@/components/playground";
-import { APP_MODE } from "@/lib/config";
+import { APP_MODE, UPLOAD_ENABLED } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Playground",
@@ -32,7 +32,7 @@ export default function PlaygroundPage() {
 
       <section>
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
-          <Playground mode={APP_MODE} />
+          <Playground mode={APP_MODE} uploadEnabled={UPLOAD_ENABLED} />
         </div>
       </section>
     </>

@@ -27,6 +27,15 @@ export const AGENT_API_TIMEOUT_MS = Number.isFinite(parsedTimeout) && parsedTime
   ? parsedTimeout
   : 45_000;
 
+/**
+ * Doküman yükleme varsayılan olarak KAPALI.
+ *
+ * Mevcut korpus tüm ziyaretçiler arasında paylaşımlı; kullanıcı izolasyonu bu
+ * aşamanın kapsamında değil. Bu yüzden yükleme yalnızca yerel geliştirmede
+ * açılır ve dağıtımda kapalı kalır.
+ */
+export const UPLOAD_ENABLED = process.env.UPLOAD_ENABLED === "true";
+
 export const GITHUB_URL = publicUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
 export const LINKEDIN_URL = publicUrl(process.env.NEXT_PUBLIC_LINKEDIN_URL);
 

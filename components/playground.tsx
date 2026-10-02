@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AgentResult, AgentRunPanels } from "@/components/agent-result";
+import { UploadPanel } from "@/components/upload-panel";
 import { DEMO_DATA_PROBLEMS, DEMO_QUESTIONS, resolveDemoRun } from "@/lib/demo-runs";
 import { normalizeAgentRun, type AgentRun, type DemoRunView } from "@/lib/agent-contract";
 import type { AgentApiErrorKind } from "@/lib/agent-api";
@@ -68,7 +69,13 @@ const ERROR_COPY: Record<AgentApiErrorKind | "bad_response", { title: string; bo
  * backend adresi ve sırlar tarayıcıya hiç ulaşmaz. İki yol da aynı
  * `AgentRun` modeline normalize edildiği için render bileşenleri paylaşılır.
  */
-export function Playground({ mode }: { mode: AppMode }) {
+export function Playground({
+  mode,
+  uploadEnabled,
+}: {
+  mode: AppMode;
+  uploadEnabled: boolean;
+}) {
   const [question, setQuestion] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
 
@@ -206,6 +213,8 @@ export function Playground({ mode }: { mode: AppMode }) {
           </ul>
         </div>
       </form>
+
+      <UploadPanel mode={mode} uploadEnabled={uploadEnabled} />
 
       <div aria-live="polite" aria-busy={busy}>
         {phase.kind === "idle" ? (
