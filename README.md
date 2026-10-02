@@ -6,12 +6,22 @@ web katmanıdır ve bağımsız olarak çalıştırılabilir.
 
 ## Durum
 
-P2 — statik iskelet. Üç sayfa (`/`, `/system`, `/about`), gezinme, mod etiketi
-ve mimari akış diyagramı. Henüz **hiçbir** backend veya model çağrısı yok:
-playground, upload, canlı mod ve değerlendirme sayfası sonraki aşamalara ait.
+Beş sayfa: `/`, `/system`, `/playground`, `/evaluation`, `/about`.
 
 Uygulama varsayılan olarak demo modundadır (`DEMO_MODE=false` yazılmadıkça) ve
 bu her sayfada `STATUS: DEMO` etiketiyle görünür.
+
+- **Demo modu (varsayılan):** playground hiçbir ağ isteği yapmaz; sorular
+  `content/demo-runs.json` içindeki hazırlanmış koşularla yerel olarak
+  eşleştirilir.
+- **Canlı mod:** `DEMO_MODE=false` ve `AGENT_API_URL` tanımlıyken playground,
+  Next.js sunucu tarafındaki `/api/ask` route handler'ı üzerinden agent
+  servisinin `/agent/ask` uç noktasını çağırır. Tarayıcı backend adresini hiç
+  görmez; model çağrıları yalnızca sunucu tarafında yapılır.
+- **Değerlendirme:** `/evaluation` varsa bir değerlendirme artefaktını okur,
+  yoksa yokluğunu açıkça bildirir — sonuç uydurmaz.
+
+Doküman yükleme ve dağıtım yapılandırması sonraki aşamalara ait.
 
 ## Çalıştırma
 

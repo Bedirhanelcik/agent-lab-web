@@ -15,6 +15,18 @@ function publicUrl(value: string | undefined): string | null {
   return trimmed ? trimmed : null;
 }
 
+/**
+ * Backend adresi bilinçli olarak NEXT_PUBLIC_ DEĞİLDİR: tarayıcı backend'in
+ * nerede olduğunu hiç öğrenmez, istekler Next.js route handler'ı üzerinden
+ * geçer. Hiçbir API anahtarı bu dosyadan tarayıcıya taşınmaz.
+ */
+export const AGENT_API_URL = process.env.AGENT_API_URL?.trim() || null;
+
+const parsedTimeout = Number.parseInt(process.env.AGENT_API_TIMEOUT_MS ?? "", 10);
+export const AGENT_API_TIMEOUT_MS = Number.isFinite(parsedTimeout) && parsedTimeout > 0
+  ? parsedTimeout
+  : 45_000;
+
 export const GITHUB_URL = publicUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
 export const LINKEDIN_URL = publicUrl(process.env.NEXT_PUBLIC_LINKEDIN_URL);
 

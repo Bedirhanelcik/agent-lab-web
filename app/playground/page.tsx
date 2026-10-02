@@ -32,7 +32,7 @@ export default function PlaygroundPage() {
 
       <section>
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
-          <Playground />
+          <Playground mode={APP_MODE} />
         </div>
       </section>
     </>

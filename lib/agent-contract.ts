@@ -229,6 +229,98 @@ export function toDemoRunView(run: DemoRun): DemoRunView {
   };
 }
 
+/* --- canlı yanıtın normalizasyonu --- */
+
+export type NormalizedRun =
+  | { ok: true; run: AgentRun }
+  | { ok: false; problems: string[] };
+
+/**
+ * Backend'den gelen `/agent/ask` yanıtını `AgentRun`'a çevirir.
+ *
+ * İki işi var:
+ *   1. Değerleri sözleşmeye karşı doğrulamak -- tanımadığımız bir status,
+ *      aksiyon veya tool durumu sessizce render edilmez.
+ *   2. Yalnızca sözleşme alanlarını geçirmek. Backend'e sonradan bir ham çıktı,
+ *      prompt veya muhakeme alanı eklenirse arayüze ulaşmaz; aynı şekilde demo
+ *      verisine ait `synthetic`/`provenance` gibi alanlar da canlı sonuca
+ *      taşınamaz.
+ */
+export function normalizeAgentRun(raw: unknown): NormalizedRun {
+  if (!raw || typeof raw !== "object") return { ok: false, problems: ["yanıt bir nesne değil"] };
+
+  const data = raw as Partial<AgentRun>;
+  const problems: string[] = [];
+
+  // Daraltılmış değerler önce yakalanıyor; böylece aşağıda tip güvenliği için
+  // bir cast'e gerek kalmıyor.
+  const answer = typeof data.answer === "string" ? data.answer : null;
+  const status = isAgentStatus(data.status) ? data.status : null;
+
+  if (answer === null) problems.push("answer alanı yok");
+  if (status === null) problems.push(`status tanınmıyor: ${String(data.status)}`);
+  if (!Array.isArray(data.sources)) problems.push("sources dizisi yok");
+  if (!Array.isArray(data.steps)) problems.push("steps dizisi yok");
+  if (!Array.isArray(data.tool_calls)) problems.push("tool_calls dizisi yok");
+  if (problems.length > 0 || answer === null || status === null) {
+    return { ok: false, problems };
+  }
+
+  const sources: AgentSource[] = [];
+  (data.sources as unknown[]).forEach((entry, index) => {
+    const source = (entry ?? {}) as Partial<AgentSource>;
+    if (typeof source.chunk_id !== "string" || typeof source.source_file !== "string") {
+      problems.push(`sources[${index}]: chunk_id veya source_file yok`);
+      return;
+    }
+    sources.push({
+      chunk_id: source.chunk_id,
+      source_file: source.source_file,
+      page_number: typeof source.page_number === "number" ? source.page_number : null,
+      text: typeof source.text === "string" ? source.text : "",
+      rank: typeof source.rank === "number" ? source.rank : index + 1,
+      score: typeof source.score === "number" ? source.score : 0,
+    });
+  });
+
+  const steps: AgentStep[] = [];
+  (data.steps as unknown[]).forEach((entry, index) => {
+    const step = (entry ?? {}) as Partial<AgentStep>;
+    if (!isAgentAction(step.action)) {
+      problems.push(`steps[${index}]: aksiyon tanınmıyor: ${String(step.action)}`);
+      return;
+    }
+    steps.push({
+      action: step.action,
+      detail: typeof step.detail === "string" ? step.detail : "",
+    });
+  });
+
+  const toolCalls: AgentToolCall[] = [];
+  (data.tool_calls as unknown[]).forEach((entry, index) => {
+    const call = (entry ?? {}) as Partial<AgentToolCall>;
+    if (!isToolStatus(call.status)) {
+      problems.push(`tool_calls[${index}]: durum tanınmıyor: ${String(call.status)}`);
+      return;
+    }
+    toolCalls.push({
+      tool: typeof call.tool === "string" ? call.tool : "unknown",
+      query: typeof call.query === "string" ? call.query : "",
+      top_k: typeof call.top_k === "number" ? call.top_k : 0,
+      source_file: typeof call.source_file === "string" ? call.source_file : null,
+      status: call.status,
+      passages_found: typeof call.passages_found === "number" ? call.passages_found : 0,
+    });
+  });
+
+  if (problems.length > 0) return { ok: false, problems };
+
+  return {
+    ok: true,
+    run: { answer, status, sources, steps, tool_calls: toolCalls },
+  };
+}
+
 /* --- doğrulama: bozuk veri sessizce render edilmesin --- */
 
 function isAgentStatus(value: unknown): value is AgentStatus {
