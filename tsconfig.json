@@ -6,6 +6,9 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    // Node'un dahili test runner'i ESM'de acik .ts uzantisi istiyor;
+    // noEmit acik oldugu icin bu secenek guvenli.
+    "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",

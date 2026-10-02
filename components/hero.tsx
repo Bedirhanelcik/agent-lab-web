@@ -46,15 +46,13 @@ export function Hero() {
           className="reveal mt-10 flex flex-wrap items-center gap-3"
           style={{ animationDelay: "240ms" }}
         >
-          {/* Playground P3'te geliyor; kırık bağlantı vermemek için şimdilik
-              etkisiz ve bunu açıkça söyleyen bir öğe olarak duruyor. */}
-          <span
-            aria-disabled="true"
-            className="mono-label inline-flex cursor-not-allowed items-center gap-2 border border-line bg-surface px-5 py-3 text-faint"
+          <Link
+            href="/playground"
+            className="mono-label inline-flex items-center gap-2 border border-accent/50 bg-surface-2 px-5 py-3 text-accent transition-colors hover:border-accent hover:bg-surface"
           >
             Try the agent
-            <span className="text-accent">soon</span>
-          </span>
+            <span aria-hidden="true">→</span>
+          </Link>
 
           <Link
             href="/system"
