@@ -49,6 +49,38 @@ npm run build
 API anahtarları bu repoda **tutulmaz**. Model çağrıları ileride yalnızca sunucu
 tarafındaki AI servisi üzerinden yapılacak; hiçbir sır tarayıcıya verilmeyecek.
 
+## Dağıtım (Vercel)
+
+Bu repo Vercel'e olduğu gibi dağıtılır; agent servisi ayrı bir deployable'dır
+(Railway benzeri bir platform). Tarayıcı **yalnızca** bu uygulamayla konuşur:
+model çağrıları ve backend adresi sunucu tarafında kalır.
+
+```
+Tarayıcı → Next.js (Vercel) → /api/ask · /api/upload → FastAPI → Gemini
+                                  AGENT_API_URL (sunucu tarafı)
+```
+
+### Vercel ortam değişkenleri
+
+| Değişken | Taraf | Önerilen değer | Not |
+|---|---|---|---|
+| `DEMO_MODE` | sunucu | `true` | `"false"` dışındaki her değer demo modunda bırakır. Canlı mod her ziyaretçi için 2-3 Gemini çağrısı demek; ücretsiz kota bir demoda tükenir. |
+| `AGENT_API_URL` | sunucu | agent servisinin kök adresi | **Asla** `NEXT_PUBLIC_` yapılmamalı. Tanımsızsa canlı mod `not_configured` döner. |
+| `AGENT_API_TIMEOUT_MS` | sunucu | boş (45000) | İstek zaman aşımı. |
+| `UPLOAD_ENABLED` | sunucu | `false` | Dağıtımda kapalı kalmalı: korpus ziyaretçiler arasında paylaşımlı, kullanıcı izolasyonu yok. |
+| `NEXT_PUBLIC_GITHUB_URL` | tarayıcı | profil adresi | Tanımsızsa bağlantı hiç render edilmez. |
+| `NEXT_PUBLIC_LINKEDIN_URL` | tarayıcı | profil adresi | Aynı davranış. |
+
+Yalnızca `NEXT_PUBLIC_*` değişkenleri tarayıcıya ulaşır ve bunlar herkese açık
+profil bağlantılarından ibarettir. Hiçbir API anahtarı bu uygulamada okunmaz:
+Gemini yalnızca agent servisi tarafından çağrılır.
+
+`lib/config.ts` sunucu tarafı yapılandırmayı okur ve bilinçli olarak
+`lib/ui-config.ts`'ten ayrıdır: istemci bileşenleri yalnızca ikincisinden değer
+import eder, böylece sunucuya ait modül tarayıcı paketine hiç girmez. Bir test
+derlenmiş paketi tarayıp `AGENT_API_URL`, anahtar adları ve gerçek anahtar
+kalıplarının bulunmadığını doğrular.
+
 ## Yapı
 
 ```

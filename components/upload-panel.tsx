@@ -10,7 +10,7 @@ import {
   type UploadOutcome,
   type UploadedFileResult,
 } from "@/lib/upload-api";
-import type { AppMode } from "@/lib/config";
+import type { AppMode } from "@/lib/ui-config";
 
 const ERROR_COPY: Record<UploadErrorKind, string> = {
   not_configured:

@@ -5,7 +5,10 @@
  * ve arayüze yalnızca sonucu aktarılır. P2'de canlı mod henüz yok, bu yüzden
  * varsayılan demo'dur ve açıkça "false" yazılmadıkça demo kalır.
  */
-export type AppMode = "demo" | "live";
+// Tip ui-config modulunden geliyor; buradan yeniden ihrac ediliyor ki
+// sunucu tarafindaki cagiranlar tek yerden import edebilsin.
+export type { AppMode } from "./ui-config";
+import type { AppMode } from "./ui-config";
 
 export const APP_MODE: AppMode = process.env.DEMO_MODE === "false" ? "live" : "demo";
 
@@ -39,10 +42,3 @@ export const UPLOAD_ENABLED = process.env.UPLOAD_ENABLED === "true";
 export const GITHUB_URL = publicUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
 export const LINKEDIN_URL = publicUrl(process.env.NEXT_PUBLIC_LINKEDIN_URL);
 
-export const NAV_ITEMS = [
-  { href: "/", label: "Home" },
-  { href: "/system", label: "System" },
-  { href: "/playground", label: "Playground" },
-  { href: "/evaluation", label: "Evaluation" },
-  { href: "/about", label: "About" },
-] as const;

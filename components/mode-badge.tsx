@@ -1,4 +1,4 @@
-import type { AppMode } from "@/lib/config";
+import type { AppMode } from "@/lib/ui-config";
 
 /**
  * Hangi veriye baktığımızı her sayfada görünür kılar. Demo verisi canlı bir

@@ -7,7 +7,7 @@ import { UploadPanel } from "@/components/upload-panel";
 import { DEMO_DATA_PROBLEMS, DEMO_QUESTIONS, resolveDemoRun } from "@/lib/demo-runs";
 import { normalizeAgentRun, type AgentRun, type DemoRunView } from "@/lib/agent-contract";
 import type { AgentApiErrorKind } from "@/lib/agent-api";
-import type { AppMode } from "@/lib/config";
+import type { AppMode } from "@/lib/ui-config";
 
 type Phase =
   | { kind: "idle" }

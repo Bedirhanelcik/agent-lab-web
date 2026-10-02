@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { ModeBadge } from "@/components/mode-badge";
-import { NAV_ITEMS, type AppMode } from "@/lib/config";
+import { NAV_ITEMS, type AppMode } from "@/lib/ui-config";
 
 export function Navigation({ mode }: { mode: AppMode }) {
   const pathname = usePathname();
