@@ -22,5 +22,6 @@ export const NAV_ITEMS = [
   { href: "/", label: "Home" },
   { href: "/system", label: "System" },
   { href: "/playground", label: "Playground" },
+  { href: "/evaluation", label: "Evaluation" },
   { href: "/about", label: "About" },
 ] as const;
