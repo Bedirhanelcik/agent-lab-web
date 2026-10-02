@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agent Lab — web
 
-## Getting Started
+Hibrit retrieval ve karar döngüsüne sahip bir araştırma agent'ının anlatıldığı
+arayüz. Agent ve RAG servisi ayrı bir Python projesinde yaşar; bu repo yalnızca
+web katmanıdır ve bağımsız olarak çalıştırılabilir.
 
-First, run the development server:
+## Durum
+
+P2 — statik iskelet. Üç sayfa (`/`, `/system`, `/about`), gezinme, mod etiketi
+ve mimari akış diyagramı. Henüz **hiçbir** backend veya model çağrısı yok:
+playground, upload, canlı mod ve değerlendirme sayfası sonraki aşamalara ait.
+
+Uygulama varsayılan olarak demo modundadır (`DEMO_MODE=false` yazılmadıkça) ve
+bu her sayfada `STATUS: DEMO` etiketiyle görünür.
+
+## Çalıştırma
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Ortam değişkenleri
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.example` dosyasını `.env.local` olarak kopyalayın.
 
-## Learn More
+| Değişken | Taraf | Açıklama |
+|---|---|---|
+| `DEMO_MODE` | sunucu | `"false"` dışındaki her değer demo modu açık tutar |
+| `NEXT_PUBLIC_GITHUB_URL` | tarayıcı | Tanımsızsa bağlantı hiç render edilmez |
+| `NEXT_PUBLIC_LINKEDIN_URL` | tarayıcı | Tanımsızsa bağlantı hiç render edilmez |
 
-To learn more about Next.js, take a look at the following resources:
+API anahtarları bu repoda **tutulmaz**. Model çağrıları ileride yalnızca sunucu
+tarafındaki AI servisi üzerinden yapılacak; hiçbir sır tarayıcıya verilmeyecek.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Yapı
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/              layout + üç sayfa (App Router)
+components/       navigation · mode-badge · hero · architecture
+                  section-heading · system-flow · footer
+lib/config.ts     sunucu tarafı yapılandırma ve gezinme tanımı
+```
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Mimari akış diyagramı bilinçli olarak anlamsal HTML + CSS ile yazıldı: metin
+seçilebilir kalıyor, ekran okuyucu sıralı bir boru hattı olarak okuyor ve dar
+ekranda ölçeklenen SVG metni gibi okunamaz hale gelmiyor. Animasyon kütüphanesi
+yok; geçişler CSS ile ve `prefers-reduced-motion` saygılı.

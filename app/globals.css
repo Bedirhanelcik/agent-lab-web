@@ -1,26 +1,164 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Tek bir karanlık görünüme bilinçli olarak bağlıyız: bu bir AI araştırma
+   arayüzü, tema değiştirici değil. Renkler açıkça boyanır. */
+@theme {
+  --color-bg: #07080b;
+  --color-surface: #0b0d12;
+  --color-surface-2: #0f1218;
+  --color-fg: #f2f4f7;
+  --color-muted: #9aa2ad;
+  --color-faint: #767e8a;
+  --color-line: #1b1f27;
+  --color-line-bright: #2d343f;
+  --color-accent: #5eead4;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background-color: color-mix(in oklab, var(--color-accent) 30%, transparent);
+  color: var(--color-fg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* --- tipografi yardımcıları --- */
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+.display {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+.mono-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* --- ölçülü hareket --- */
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.reveal {
+  animation: reveal 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 2.4s ease-in-out infinite;
+}
+
+/* Akış bağlayıcısı: 1px kesikli dikey çizgi, yavaşça akar. Tek işi
+   diyagramdaki yönü anlatmak. */
+@keyframes flow {
+  to {
+    background-position: 0 -16px;
+  }
+}
+
+.flow-line {
+  width: 1px;
+  background-image: linear-gradient(
+    to bottom,
+    var(--color-line-bright) 0 7px,
+    transparent 7px 16px
+  );
+  background-size: 1px 16px;
+  animation: flow 1.6s linear infinite;
+}
+
+.flow-line-h {
+  height: 1px;
+  background-image: linear-gradient(
+    to right,
+    var(--color-line-bright) 0 7px,
+    transparent 7px 16px
+  );
+  background-size: 16px 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .pulse-dot,
+  .flow-line {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* --- çok düşük yoğunlukta ızgara dokusu --- */
+
+.grid-texture {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, #ffffff0a 1px, transparent 1px),
+    linear-gradient(to bottom, #ffffff0a 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 75%);
+}
+
+/* --- kart hover: yalnızca kenarlık aydınlanır --- */
+
+.card {
+  border: 1px solid var(--color-line);
+  background-color: var(--color-surface);
+  transition:
+    border-color 0.35s ease,
+    background-color 0.35s ease;
+}
+
+.card:hover {
+  border-color: var(--color-line-bright);
+  background-color: var(--color-surface-2);
 }
