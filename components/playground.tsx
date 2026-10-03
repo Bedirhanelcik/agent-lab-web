@@ -39,6 +39,10 @@ const ERROR_COPY: Record<AgentApiErrorKind | "bad_response", { title: string; bo
     title: "Cevap üretilemedi",
     body: "Retrieval tamamlandı ama cevap üretme adımı başarısız oldu. Bu genellikle geçici bir sorundur; tekrar denemek mantıklı.",
   },
+  corpus_empty: {
+    title: "Henüz doküman yüklenmedi",
+    body: "Agent arama yapabileceği bir doküman bulamadı: arşiv şu an boş. Bir doküman ingest edildikten sonra sorular yanıtlanabilir.",
+  },
   agent_unavailable: {
     title: "Agent şu an kullanılamıyor",
     body: "Agent servisi ayakta ama sorgu alabilecek durumda değil. Sunucu yapılandırması tamamlandığında bu uç nokta yanıt verecek.",

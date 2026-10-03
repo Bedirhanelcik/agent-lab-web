@@ -19,6 +19,7 @@ export const AGENT_API_ERROR_KINDS = [
   "quota_exhausted",
   "generation_error",
   "agent_unavailable",
+  "corpus_empty",
   "upstream_error",
   "bad_response",
   "timeout",
@@ -49,12 +50,14 @@ export function mapErrorResponse(status: number, body: unknown): AgentApiErrorKi
   if (code === "quota_exhausted") return "quota_exhausted";
   if (code === "generation_error") return "generation_error";
   if (code === "agent_unavailable") return "agent_unavailable";
+  if (code === "corpus_empty") return "corpus_empty";
   if (code === "retrieval_error") return "upstream_error";
 
   // Kod gelmezse HTTP durumuna düşülür; backend sözleşmesiyle aynı eşleme.
   if (status === 429) return "quota_exhausted";
   if (status === 502) return "generation_error";
   if (status === 503) return "agent_unavailable";
+  if (status === 409) return "corpus_empty";
   if (status === 422 || status === 400) return "invalid_request";
   return "upstream_error";
 }

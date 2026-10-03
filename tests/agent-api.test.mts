@@ -376,3 +376,20 @@ test("normalizeAgentRun demo meta verisini hiç üretmez", () => {
   assert.ok(!("synthetic" in result.run));
   assert.ok(!("provenance" in result.run));
 });
+
+
+test("409 boş korpus olarak ayrıştırılır", async () => {
+  const { impl } = fakeFetch({
+    status: 409,
+    body: { detail: { code: "corpus_empty", message: "henüz doküman yok" } },
+  });
+
+  assert.equal(
+    expectError(await askAgent("Soru?", { baseUrl: BASE, fetchImpl: impl })),
+    "corpus_empty",
+  );
+});
+
+test("kod gelmezse 409 de boş korpusa düşer", () => {
+  assert.equal(mapErrorResponse(409, null), "corpus_empty");
+});
