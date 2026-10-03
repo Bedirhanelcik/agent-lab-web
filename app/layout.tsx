@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { I18nProvider } from "@/components/i18n-provider";
 import { Navigation } from "@/components/navigation";
+import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
 import { APP_MODE } from "@/lib/config";
 import { getI18n } from "@/lib/i18n/server";
 
@@ -52,6 +53,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
+        {/* Kayıtlı tema seçimi React hidrasyonunu beklemeden uygulanır; aksi
+            halde koyu temayı seçmiş bir kullanıcı ilk kareyi aydınlık görürdü.
+            Elle bir <head> yazmak yerine script doğrudan burada duruyor:
+            React 19 script elemanlarını kendisi head'e taşıyor ve elle yazılan
+            bir <head> bu ağacın hidrasyonunu bozuyor. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+
         <I18nProvider locale={locale} messages={t}>
           <a
             href="#main"

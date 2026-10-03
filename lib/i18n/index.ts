@@ -16,6 +16,7 @@ import { en } from "./locales/en.ts";
 import { es } from "./locales/es.ts";
 import { fr } from "./locales/fr.ts";
 import { hi } from "./locales/hi.ts";
+import { pt } from "./locales/pt.ts";
 import { tr } from "./locales/tr.ts";
 import { zh } from "./locales/zh.ts";
 import {
@@ -27,7 +28,15 @@ import {
 } from "./types.ts";
 
 export { LOCALES, LOCALE_INFO };
-export type { Direction, Locale, LocaleInfo, Messages } from "./types.ts";
+export type {
+  Direction,
+  EnvVar,
+  FlowStep,
+  GlossaryEntry,
+  Locale,
+  LocaleInfo,
+  Messages,
+} from "./types.ts";
 
 /** Korpusun dili ve varsayılan arayüz dili. */
 export const DEFAULT_LOCALE: Locale = "tr";
@@ -40,7 +49,7 @@ export const LOCALE_COOKIE = "agentlab_locale";
 /** Bir yıl: dil tercihi kalıcı bir tercih, oturumluk değil. */
 export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
-const DICTIONARIES: Record<Locale, Messages> = { tr, en, fr, ar, es, zh, hi };
+const DICTIONARIES: Record<Locale, Messages> = { tr, en, fr, ar, es, pt, zh, hi };
 
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);

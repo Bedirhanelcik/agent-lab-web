@@ -1,29 +1,97 @@
 @import "tailwindcss";
 
-/* Tek bir karanlık görünüme bilinçli olarak bağlıyız: bu bir AI araştırma
-   arayüzü, tema değiştirici değil. Renkler açıkça boyanır. */
+/* ============================================================================
+   Tema belirteçleri
+   ----------------------------------------------------------------------------
+   Tailwind sınıf adları (`bg-surface`, `text-muted`, `border-line`) tek bir
+   değişken kümesine bağlanıyor; o küme de temaya göre yeniden tanımlanıyor.
+   Böylece tema değiştiğinde yalnızca sayfa zemini değil, kartlar, kenarlıklar,
+   form alanları, kod panelleri ve durum göstergeleri dahil her şey birlikte
+   değişiyor -- bileşenlerde tek bir koşullu sınıf yazmaya gerek kalmadan.
+
+   Üç durum var: açık (varsayılan tanım), sistem tercihi karanlıkken karanlık,
+   ve kullanıcının açık seçimi (`data-theme`). Kullanıcı seçimi her iki yönde
+   de sistem tercihini ezer.
+   ========================================================================= */
+
 @theme {
-  --color-bg: #07080b;
-  --color-surface: #0b0d12;
-  --color-surface-2: #0f1218;
-  --color-fg: #f2f4f7;
-  --color-muted: #9aa2ad;
-  --color-faint: #767e8a;
-  --color-line: #1b1f27;
-  --color-line-bright: #2d343f;
-  /* Yalnizca form alanlari icin: dekoratif kenarliklar (line, line-bright)
-     zeminle 1.2-1.6 kontrast tasiyor ve bir metin alaninin tek gorsel siniri
-     kenarligi oldugu icin alan pratikte kayboluyordu. Bu ton zeminle 3.18:1
-     kontrast verir, yani WCAG 1.4.11'in metin disi esigini gecer. */
-  --color-line-field: #596070;
-  --color-accent: #5eead4;
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-fg: var(--c-fg);
+  --color-muted: var(--c-muted);
+  --color-faint: var(--c-faint);
+  --color-line: var(--c-line);
+  --color-line-bright: var(--c-line-bright);
+  --color-line-field: var(--c-line-field);
+  --color-accent: var(--c-accent);
+  --color-accent-soft: var(--c-accent-soft);
+  --color-danger: var(--c-danger);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-html {
+/* --- açık tema (varsayılan tanım) --- */
+:root {
+  color-scheme: light;
+
+  --c-bg: #fbfbfc;
+  --c-surface: #ffffff;
+  --c-surface-2: #f3f4f7;
+  --c-fg: #0e1116;
+  --c-muted: #4a515d;
+  --c-faint: #646b78;
+  --c-line: #e4e6ec;
+  --c-line-bright: #c7cbd4;
+  /* Form alanlarının tek görsel sınırı kenarlıklarıdır; bu ton zeminle
+     3:1'in üzerinde kontrast taşır (WCAG 1.4.11). */
+  --c-line-field: #868d9a;
+  --c-accent: #0f766e;
+  --c-accent-soft: #0f766e33;
+  --c-danger: #b42318;
+  /* Izgara dokusu: açık zeminde siyah, koyu zeminde beyaz olmalı. */
+  --c-texture: #0e111609;
+}
+
+/* --- sistem tercihi karanlık, kullanıcı açıkça aydınlık seçmemiş --- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    --c-bg: #07080b;
+    --c-surface: #0b0d12;
+    --c-surface-2: #0f1218;
+    --c-fg: #f2f4f7;
+    --c-muted: #9aa2ad;
+    --c-faint: #767e8a;
+    --c-line: #1b1f27;
+    --c-line-bright: #2d343f;
+    --c-line-field: #596070;
+    --c-accent: #5eead4;
+    --c-accent-soft: #5eead433;
+    --c-danger: #f87171;
+    --c-texture: #ffffff0a;
+  }
+}
+
+/* --- kullanıcının açık seçimi: karanlık --- */
+:root[data-theme="dark"] {
   color-scheme: dark;
+
+  --c-bg: #07080b;
+  --c-surface: #0b0d12;
+  --c-surface-2: #0f1218;
+  --c-fg: #f2f4f7;
+  --c-muted: #9aa2ad;
+  --c-faint: #767e8a;
+  --c-line: #1b1f27;
+  --c-line-bright: #2d343f;
+  --c-line-field: #596070;
+  --c-accent: #5eead4;
+  --c-accent-soft: #5eead433;
+  --c-danger: #f87171;
+  --c-texture: #ffffff0a;
 }
 
 body {
@@ -147,8 +215,8 @@ body {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, #ffffff0a 1px, transparent 1px),
-    linear-gradient(to bottom, #ffffff0a 1px, transparent 1px);
+    linear-gradient(to right, var(--c-texture) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-texture) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 75%);
 }
@@ -165,6 +233,35 @@ body {
 
 .card:hover {
   border-color: var(--color-line-bright);
+  background-color: var(--color-surface-2);
+}
+
+/* --- kod panelleri (kurulum dokümantasyonu) --- */
+
+.code-block {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  overflow-x: auto;
+  /* Kod her zaman soldan sağa okunur; Arapça arayüzde de yön değişmemeli. */
+  direction: ltr;
+  text-align: start;
+}
+
+/* --- sürükle-bırak alanı --- */
+
+.dropzone {
+  border: 1px dashed var(--color-line-bright);
+  background-color: var(--color-surface);
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dropzone[data-active="true"] {
+  border-color: var(--color-accent);
   background-color: var(--color-surface-2);
 }
 

@@ -12,7 +12,7 @@
  * açıklayan cümlelerdir.
  */
 
-export const LOCALES = ["tr", "en", "fr", "ar", "es", "zh", "hi"] as const;
+export const LOCALES = ["tr", "en", "fr", "ar", "es", "pt", "zh", "hi"] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
@@ -32,6 +32,7 @@ export const LOCALE_INFO: Record<Locale, LocaleInfo> = {
   fr: { code: "fr", nativeName: "Français", dir: "ltr" },
   ar: { code: "ar", nativeName: "العربية", dir: "rtl" },
   es: { code: "es", nativeName: "Español", dir: "ltr" },
+  pt: { code: "pt", nativeName: "Português", dir: "ltr" },
   zh: { code: "zh", nativeName: "中文（简体）", dir: "ltr" },
   hi: { code: "hi", nativeName: "हिन्दी", dir: "ltr" },
 };
@@ -53,6 +54,27 @@ export interface FlowState {
   detail: string;
 }
 
+/** Numaralandirilmis akis adimi (How it works). */
+export interface FlowStep {
+  title: string;
+  body: string;
+}
+
+/** Sozluk girdisi: terim Ingilizce kalir, aciklama cevrilir. */
+export interface GlossaryEntry {
+  term: string;
+  body: string;
+}
+
+/** Ortam degiskeni dokumantasyon satiri. */
+export interface EnvVar {
+  name: string;
+  example: string;
+  required: boolean;
+  secret: boolean;
+  description: string;
+}
+
 export interface Messages {
   meta: {
     siteTitle: string;
@@ -67,6 +89,8 @@ export interface Messages {
     evaluationDescription: string;
     aboutTitle: string;
     aboutDescription: string;
+    apiSetupTitle: string;
+    apiSetupDescription: string;
   };
 
   nav: {
@@ -76,7 +100,14 @@ export interface Messages {
     system: string;
     playground: string;
     evaluation: string;
+    apiSetup: string;
     about: string;
+  };
+
+  theme: {
+    label: string;
+    toLight: string;
+    toDark: string;
   };
 
   language: {
@@ -284,6 +315,103 @@ export interface Messages {
     stackHeading: string;
     stackGroups: { group: string; items: string[] }[];
     linksHeading: string;
+  };
+
+  documents: {
+    eyebrow: string;
+    heading: string;
+    intro: string;
+    dropTitle: string;
+    dropHint: string;
+    browse: string;
+    accepted: string;
+    maxSize: string;
+    selectedTitle: string;
+    clearSelection: string;
+    upload: string;
+    uploading: string;
+    indexing: string;
+    indexingHint: string;
+    successTitle: string;
+    successBody: string;
+    corpusNote: string;
+    askNow: string;
+    failedTitle: string;
+    listTitle: string;
+    listEmptyTitle: string;
+    listEmptyBody: string;
+    chunkCount: string;
+    remove: string;
+    removing: string;
+    removeFailed: string;
+    resetTitle: string;
+    resetBody: string;
+    reset: string;
+    resetting: string;
+    resetDone: string;
+    resetFailed: string;
+    corpusSize: string;
+    keywordIndex: string;
+    readOnlyTitle: string;
+    readOnlyBody: string;
+    demoTitle: string;
+    demoBody: string;
+    loading: string;
+    loadFailed: string;
+  };
+
+  howItWorks: {
+    eyebrow: string;
+    heading: string;
+    intro: string;
+    stepLabel: string;
+    ingestTitle: string;
+    ingestIntro: string;
+    ingestSteps: FlowStep[];
+    askTitle: string;
+    askIntro: string;
+    askSteps: FlowStep[];
+    glossaryTitle: string;
+    glossaryIntro: string;
+    glossary: GlossaryEntry[];
+  };
+
+  apiSetup: {
+    navBadge: string;
+    heroEyebrow: string;
+    heroTitle: string;
+    heroIntro: string;
+    whyTitle: string;
+    whyBody: string[];
+    quotaTitle: string;
+    quotaBody: string;
+    quotaLink: string;
+    quotaNote: string;
+    githubTitle: string;
+    githubBody: string;
+    githubButton: string;
+    githubMissing: string;
+    localTitle: string;
+    localIntro: string;
+    localSteps: FlowStep[];
+    envTitle: string;
+    envIntro: string;
+    envRequired: string;
+    envOptional: string;
+    envSecret: string;
+    envVars: EnvVar[];
+    renderTitle: string;
+    renderIntro: string;
+    renderSteps: FlowStep[];
+    secretsTitle: string;
+    secretsBody: string[];
+    frontendTitle: string;
+    frontendBody: string;
+    frontendVars: EnvVar[];
+    runTitle: string;
+    runIntro: string;
+    copy: string;
+    copied: string;
   };
 
   footer: {

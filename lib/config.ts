@@ -39,6 +39,14 @@ export const AGENT_API_TIMEOUT_MS = Number.isFinite(parsedTimeout) && parsedTime
  */
 export const UPLOAD_ENABLED = process.env.UPLOAD_ENABLED === "true";
 
-export const GITHUB_URL = publicUrl(process.env.NEXT_PUBLIC_GITHUB_URL);
+/**
+ * Depo adresi. Ortam degiskeni verilmezse projenin kendi uzak adresi
+ * kullanilir -- bu uydurulmus bir adres degil, deponun `origin` remote'u.
+ * Gizli bir deger olmadigi icin NEXT_PUBLIC_ onekiyle tarayiciya verilebilir.
+ */
+export const DEFAULT_REPOSITORY_URL = "https://github.com/Bedirhanelcik/rag";
+
+export const GITHUB_URL =
+  publicUrl(process.env.NEXT_PUBLIC_GITHUB_URL) ?? DEFAULT_REPOSITORY_URL;
 export const LINKEDIN_URL = publicUrl(process.env.NEXT_PUBLIC_LINKEDIN_URL);
 

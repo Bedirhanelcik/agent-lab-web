@@ -65,14 +65,35 @@ test("hiçbir kaynak dosyada gerçek API anahtarı kalıbı yok", () => {
   }
 });
 
-test("GEMINI_API_KEY hiçbir web dosyasında okunmuyor", () => {
+test("GEMINI_API_KEY hiçbir web dosyasında OKUNMUYOR", () => {
   // Web katmanı Gemini'yi hiç çağırmaz; yalnızca FastAPI ile konuşur.
+  //
+  // Aranan şey değişkenin ADI değil, OKUNMASI: API kurulum sayfası kullanıcıya
+  // hangi değişkenleri tanımlaması gerektiğini anlatırken adı metin olarak
+  // gösteriyor ve bu bir sızıntı değil. Sızıntı, değerin gerçekten okunup
+  // istemciye taşınmasıyla olurdu.
+  const forbidden = [
+    "process.env.GEMINI_API_KEY",
+    "process.env.INGEST_API_TOKEN",
+    "NEXT_PUBLIC_GEMINI",
+  ];
+
   for (const file of [...clientSourceFiles(), ...walkFiles("app", [".tsx", ".ts"])]) {
     const contents = readFileSync(file, "utf8");
-    assert.ok(
-      !contents.includes("GEMINI_API_KEY"),
-      `${file}: web katmanı Gemini anahtarını okumamalı`,
-    );
+    for (const pattern of forbidden) {
+      assert.ok(
+        !contents.includes(pattern),
+        `${file}: web katmanı ${pattern} okumamalı`,
+      );
+    }
+  }
+});
+
+test("gerçek bir anahtar değeri hiçbir yerde gömülü değil", () => {
+  // Dokümantasyon örnekleri yer tutucu olmalı: "YOUR_API_KEY" gibi.
+  for (const file of walkFiles("lib/i18n", [".ts"])) {
+    const contents = readFileSync(file, "utf8");
+    assert.ok(!/AIza[0-9A-Za-z_-]{10,}/u.test(contents), `${file}: gerçek anahtar kalıbı`);
   }
 });
 

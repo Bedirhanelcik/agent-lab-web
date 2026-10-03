@@ -23,5 +23,6 @@ export const NAV_ITEMS = [
   { href: "/system" },
   { href: "/playground" },
   { href: "/evaluation" },
+  { href: "/api-setup" },
   { href: "/about" },
 ] as const;

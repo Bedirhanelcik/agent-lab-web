@@ -1,7 +1,7 @@
 /**
  * Dil katmanı testleri.
  *
- * Yedi sözlüğü elle senkron tutmak hata üretir: bir dile anahtar eklenip
+ * Sekiz sözlüğü elle senkron tutmak hata üretir: bir dile anahtar eklenip
  * ötekilere eklenmemesi, yalnızca o dil seçildiğinde görünen boş bir alan
  * demektir. TypeScript eksik anahtarı yakalıyor (`satisfies Messages`), bu
  * testler onun yakalayamadıklarını yakalıyor: boş metinler, kopyala-yapıştır
@@ -27,7 +27,7 @@ import {
   pickLocaleFromAcceptLanguage,
 } from "../lib/i18n/index.ts";
 
-const EXPECTED_LOCALES = ["tr", "en", "fr", "ar", "es", "zh", "hi"];
+const EXPECTED_LOCALES = ["tr", "en", "fr", "ar", "es", "pt", "zh", "hi"];
 
 /** Sözlükteki her metnin yolunu ve değerini düz bir listeye açar. */
 function flatten(node: unknown, path = ""): [string, string][] {
@@ -50,7 +50,7 @@ function placeholders(text: string): string[] {
 const reference = flatten(getMessages("tr"));
 
 describe("dil kayıtları", () => {
-  it("tam olarak yedi dil sunar", () => {
+  it("tam olarak sekiz dil sunar", () => {
     assert.deepEqual([...LOCALES], EXPECTED_LOCALES);
   });
 
@@ -73,17 +73,21 @@ describe("dil kayıtları", () => {
     assert.equal(LOCALE_INFO.ar.nativeName, "العربية");
     assert.equal(LOCALE_INFO.zh.nativeName, "中文（简体）");
     assert.equal(LOCALE_INFO.hi.nativeName, "हिन्दी");
+    assert.equal(LOCALE_INFO.pt.nativeName, "Português");
   });
 });
 
 describe("sözlük bütünlüğü", () => {
   for (const locale of LOCALES) {
     it(`${locale}: Türkçe referansla aynı anahtarları taşır`, () => {
+      // Sıra değil küme karşılaştırılıyor: bir dilde bölümlerin dosya içindeki
+      // yeri farklı olabilir, önemli olan hiçbir anahtarın eksik veya fazla
+      // olmaması.
       const entries = flatten(getMessages(locale));
 
       assert.deepEqual(
-        entries.map(([path]) => path),
-        reference.map(([path]) => path),
+        entries.map(([path]) => path).sort(),
+        reference.map(([path]) => path).sort(),
       );
     });
 

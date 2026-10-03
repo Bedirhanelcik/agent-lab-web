@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { SectionHeading } from "@/components/section-heading";
+import { HowItWorks } from "@/components/how-it-works";
 import { SystemFlow } from "@/components/system-flow";
 import { getI18n } from "@/lib/i18n/server";
 
@@ -29,6 +30,8 @@ export default async function SystemPage() {
           </p>
         </div>
       </section>
+
+      <HowItWorks />
 
       <section className="border-b border-line">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">

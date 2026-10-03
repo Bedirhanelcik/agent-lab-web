@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import { AgentResult, AgentRunPanels } from "@/components/agent-result";
 import { useI18n } from "@/components/i18n-provider";
-import { UploadPanel } from "@/components/upload-panel";
+import { DocumentWorkspace } from "@/components/document-workspace";
 import { DEMO_DATA_PROBLEMS, DEMO_QUESTIONS, resolveDemoRun } from "@/lib/demo-runs";
 import { normalizeAgentRun, type AgentRun, type DemoRunView } from "@/lib/agent-contract";
 import type { AgentApiErrorKind } from "@/lib/agent-api";
@@ -187,7 +187,7 @@ export function Playground({
         </div>
       </form>
 
-      <UploadPanel mode={mode} uploadEnabled={uploadEnabled} />
+      <DocumentWorkspace mode={mode} uploadEnabled={uploadEnabled} />
 
       <div aria-live="polite" aria-busy={busy}>
         {phase.kind === "idle" ? (

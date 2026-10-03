@@ -21,16 +21,20 @@ export const en = {
       "How agent behaviour is measured: cases, structural assertions, results and limits.",
     aboutTitle: "About",
     aboutDescription:
-      "An independent engineering project that grew out of agentic AI coursework.",
+      "An independent AI engineering project combining retrieval, tool-based decision making and evaluation in one architecture.",
+    apiSetupTitle: "API Setup",
+    apiSetupDescription:
+      "How to run the system with your own Gemini API key, locally or on Render.",
   },
 
   nav: {
     skipToContent: "Skip to content",
     ariaLabel: "Main navigation",
     home: "Home",
-    system: "System",
+    system: "How it works",
     playground: "Playground",
     evaluation: "Evaluation",
+    apiSetup: "API Setup",
     about: "About",
   },
 
@@ -52,7 +56,7 @@ export const en = {
     heroTitleLine1: "An agent that",
     heroTitleLine2: "knows when to search.",
     heroSubtitle: "Hybrid Retrieval. Adaptive reasoning. Grounded answers.",
-    ctaPlayground: "Try the agent",
+    ctaPlayground: "Upload your documents",
     ctaSystem: "Explore the system",
     pillars: [
       {
@@ -71,7 +75,7 @@ export const en = {
     whyEyebrow: "Why it exists",
     whyTitle: "Not just another RAG demo",
     whyDescription:
-      "Most examples take a question, hand it to Vector Search and pass the result to a language model. The difference here is the decision layer: the system decides for itself whether a search is needed, whether what came back is sufficient and whether another attempt is worth making. It refuses to answer on insufficient context.",
+      "Upload your own documents, let the system make them searchable, and ask questions about them. Most examples take a question, hand it to Vector Search and pass the result to a language model; the difference here is the decision layer: the system decides for itself whether a search is needed, whether what came back is sufficient and whether another attempt is worth making. It refuses to answer on insufficient context.",
     facts: [
       { value: "475", label: "local tests" },
       { value: "6", label: "evaluation cases" },
@@ -231,7 +235,7 @@ export const en = {
     submit: "Submit",
     submittingDemo: "Resolving…",
     submittingLive: "Running…",
-    examplesDemo: "Prepared questions",
+    examplesDemo: "Try the sample corpus",
     examplesLive: "Example questions",
     syntheticTag: "synthetic",
     idleDemo:
@@ -463,9 +467,9 @@ export const en = {
     heroEyebrow: "The project",
     heroTitle: "Built as an experiment in agentic AI.",
     paragraphs: [
-      "I first encountered agentic AI topics in a software engineering course. They caught my interest, and taking the syllabus as a reference I started an independent project to push my own AI development work further.",
-      "The project is not a homework submission: the course was a starting point, and the whole system was designed and written independently of it. The aim was not to produce a general-purpose chat interface but to build a system that uses retrieval as a tool, decides for itself when to search, and does not answer without citing a source.",
-      "The three parts work independently and are tested independently: the Hybrid Retrieval layer, the agent with its decision loop, and the evaluation system that measures the agent's behaviour. This site brings them together under one narrative.",
+      "This project explores how an AI system can go beyond plain text generation by combining retrieval, tool-based decision making and measurable evaluation into a single architecture.",
+      "The system is not a general-purpose chatbot. You bring your own documents, they are processed into a searchable knowledge base, and an agent decides for itself when retrieval is necessary, uses hybrid retrieval as a tool, and grounds its answer only in the evidence it found.",
+      "The three parts work and are tested independently: the Hybrid Retrieval layer, the agent with its decision loop, and an evaluation system that measures that behaviour with measurable test cases rather than subjective impressions. This interface brings all three together into one interactive application.",
     ],
     stackHeading: "Stack",
     stackGroups: [
@@ -475,6 +479,320 @@ export const en = {
       { group: "Reasoning", items: ["Gemini", "Agentic workflow", "RAG"] },
     ],
     linksHeading: "Links",
+  },
+
+  theme: {
+    label: "Theme",
+    toLight: "Switch to light theme",
+    toDark: "Switch to dark theme",
+  },
+
+  documents: {
+    eyebrow: "Your own documents",
+    heading: "Upload your documents and ask questions about them",
+    intro:
+      "The file you upload is parsed into text, split into chunks, embedded with Gemini and written to both the vector and the keyword index. The moment that finishes, the agent searches your documents.",
+    dropTitle: "Drop your files here",
+    dropHint: "or pick them from your computer",
+    browse: "Choose files",
+    accepted: "PDF, TXT, MD",
+    maxSize: "up to {max} MB per file",
+    selectedTitle: "Selected files",
+    clearSelection: "Clear selection",
+    upload: "Upload and index",
+    uploading: "Uploading…",
+    indexing: "Indexing",
+    indexingHint:
+      "Text extraction, chunking and embedding run in sequence; this can take a few seconds depending on file size.",
+    successTitle: "Added to the corpus",
+    successBody: "Your documents are now part of the retrieval corpus.",
+    corpusNote: "The corpus now holds {chunks} chunks.",
+    askNow: "Ask a question now",
+    failedTitle: "Upload failed",
+    listTitle: "Documents in the corpus",
+    listEmptyTitle: "The corpus is empty",
+    listEmptyBody:
+      "Nothing has been indexed yet. Upload a file and the agent will have something to search when answering your questions.",
+    chunkCount: "{count} chunks",
+    remove: "Remove",
+    removing: "Removing…",
+    removeFailed: "The document could not be removed.",
+    resetTitle: "Reset the corpus",
+    resetBody:
+      "Deletes every document from both the vector and the keyword index. This cannot be undone.",
+    reset: "Reset corpus",
+    resetting: "Resetting…",
+    resetDone: "The corpus has been emptied.",
+    resetFailed: "The corpus could not be reset.",
+    corpusSize: "corpus",
+    keywordIndex: "keyword index",
+    readOnlyTitle: "The corpus is read-only",
+    readOnlyBody:
+      "Adding and removing documents is disabled in this environment. The corpus is shared across all visitors, so write access is not exposed publicly before per-user isolation exists. Running the project on your own machine, you can enable it with UPLOAD_ENABLED=true.",
+    demoTitle: "Uploading does nothing in demo mode",
+    demoBody:
+      "This page currently shows prepared example runs and makes no model calls. To upload your own documents, run the system in live mode.",
+    loading: "Reading the corpus…",
+    loadFailed: "The corpus state could not be read.",
+  },
+
+  howItWorks: {
+    eyebrow: "How it works",
+    heading: "From a document to a grounded answer",
+    intro:
+      "The system has two separate flows: the indexing that makes your documents searchable, and the querying that turns a question into an answer with sources. Both are walked through below.",
+    stepLabel: "Step",
+    ingestTitle: "1. Document indexing",
+    ingestIntro: "When you upload a file, this happens in order:",
+    ingestSteps: [
+      {
+        title: "Upload",
+        body: "Your PDF, TXT or MD file goes from the browser to the server. The browser never sees the backend address or any key; the request passes through the Next.js server.",
+      },
+      {
+        title: "Text extraction",
+        body: "The plain text inside the file is read. Page numbers are kept for PDFs, so an answer can later point at the page it came from.",
+      },
+      {
+        title: "Chunking",
+        body: "The text is split into pieces of roughly 1000 characters with a 150-character overlap. The overlap keeps a sentence from losing its context when it falls exactly on a boundary.",
+      },
+      {
+        title: "Gemini Embedding",
+        body: "Each chunk is turned into a list of numbers representing its meaning. Texts that mean similar things end up close together in that space.",
+      },
+      {
+        title: "Chroma vector index",
+        body: "The embeddings are written to a persistent vector database together with the chunk text and its source.",
+      },
+      {
+        title: "BM25 keyword index",
+        body: "The same chunks also go into a word-based index. Vector search catches meaning, BM25 catches the exact word; they work together.",
+      },
+    ],
+    askTitle: "2. Answering a question",
+    askIntro: "When you ask something, the flow goes like this:",
+    askSteps: [
+      {
+        title: "Question",
+        body: "You write the question in your own language. The answer is produced in the interface language you selected.",
+      },
+      {
+        title: "The agent assesses it",
+        body: "The agent asks itself first: do I need to look at the documents to answer this? For a greeting or simple arithmetic, it does not.",
+      },
+      {
+        title: "Retrieval decision",
+        body: "If it is not needed, no search runs at all and the tool call count stays at zero. That is the difference from a fixed pipeline: not searching is also a decision.",
+      },
+      {
+        title: "Retrieval tool",
+        body: "If it is needed, the agent writes its own search query — it does not have to forward your sentence unchanged — and calls the rag_search tool.",
+      },
+      {
+        title: "Vector Search + BM25",
+        body: "Two searches run in parallel: one finds semantic proximity, the other exact word matches.",
+      },
+      {
+        title: "RRF fusion",
+        body: "The two rankings are merged into one. Because the scores are on different scales, only the ranks are used.",
+      },
+      {
+        title: "Grounded answer from Gemini",
+        body: "The answer is produced only from the retrieved passages, and every claim is tied to a chunk identifier. If the passages are not enough, the agent refuses to answer.",
+      },
+    ],
+    glossaryTitle: "Terms",
+    glossaryIntro:
+      "Short plain-language definitions of the technical terms used in the interface. The terms themselves stay in English because that is how they appear in the literature.",
+    glossary: [
+      {
+        term: "RAG",
+        body: "Retrieval-Augmented Generation. Instead of asking the AI to answer only from its internal knowledge, the system first retrieves relevant information from your documents and grounds the answer in it.",
+      },
+      {
+        term: "Vector Search",
+        body: "Finds documents based on semantic meaning rather than exact words.",
+      },
+      {
+        term: "BM25",
+        body: "A keyword-based search method that finds documents containing the important matching terms.",
+      },
+      {
+        term: "RRF",
+        body: "Reciprocal Rank Fusion. Combines results from different search methods into a single ranking.",
+      },
+      {
+        term: "Agent",
+        body: "An AI decision layer that can decide when it needs to use a retrieval tool before answering.",
+      },
+      {
+        term: "Embedding",
+        body: "A numerical representation of text that allows semantically similar content to be found.",
+      },
+      {
+        term: "Chunk",
+        body: "A smaller section of a document, created so the retrieval system can search useful pieces instead of an entire file at once.",
+      },
+      {
+        term: "Citation",
+        body: "A reference showing which document and which chunk supports the answer.",
+      },
+    ],
+  },
+
+  apiSetup: {
+    navBadge: "API",
+    heroEyebrow: "Setup guide",
+    heroTitle: "Run the system with your own Gemini API key",
+    heroIntro:
+      "This project uses Gemini for both generation and embeddings. With your own key, requests count against your own project's quota and you can run the whole system in your own environment.",
+    whyTitle: "Why do I need my own API key?",
+    whyBody: [
+      "The application calls a model in two places: it generates embeddings while indexing your documents, and it calls Gemini for the agent's decisions and for synthesising the answer. Both need an API key.",
+      "The key is read on the server only and is never sent to the browser. Using your own key means the requests are subject to your quota and your limits.",
+    ],
+    quotaTitle: "Quota and pricing",
+    quotaBody:
+      "Gemini API availability, free-tier quotas and pricing depend on Google's current policies, the model you choose and your account. Check Google's current information before deploying.",
+    quotaLink: "Gemini API pricing and quota information",
+    quotaNote:
+      "This project makes no promise of unlimited or permanently free usage. When your quota runs out, the application says so with a clear error instead of quietly producing a wrong answer.",
+    githubTitle: "Source code",
+    githubBody:
+      "You can clone the project, run it on your own machine, try it with your own documents and change whatever you like.",
+    githubButton: "View on GitHub",
+    githubMissing: "The repository address is not configured in this deployment.",
+    localTitle: "Local setup",
+    localIntro: "Four steps to get it running on your own machine.",
+    localSteps: [
+      { title: "Clone the repository", body: "Download the source and change into the project directory." },
+      { title: "Get an API key", body: "Create a Gemini API key through Google AI Studio." },
+      {
+        title: "Create the .env file",
+        body: "Copy the repository's .env.example to .env and put your key in it. That file is in .gitignore, so it is never pushed to the repository.",
+      },
+      { title: "Start the service", body: "Install the dependencies and bring the API up, then start the interface." },
+    ],
+    envTitle: "Backend environment variables",
+    envIntro:
+      "The only required field is the API key; everything else has a sensible default. The names below are exactly the ones in the repository's .env.example.",
+    envRequired: "required",
+    envOptional: "optional",
+    envSecret: "secret",
+    envVars: [
+      {
+        name: "GEMINI_API_KEY",
+        example: "YOUR_API_KEY",
+        required: true,
+        secret: true,
+        description: "Your Gemini API key. Both generation and embeddings run on this key.",
+      },
+      {
+        name: "GEMINI_AGENT_MODEL",
+        example: "gemini-2.5-flash",
+        required: false,
+        secret: false,
+        description: "The model used for the agent's decisions and for synthesising answers.",
+      },
+      {
+        name: "EMBEDDING_MODEL_NAME",
+        example: "gemini-embedding-001",
+        required: false,
+        secret: false,
+        description: "The embedding model. It must be a Gemini embedding model, not a local model name.",
+      },
+      {
+        name: "EMBEDDING_DIMENSIONS",
+        example: "768",
+        required: false,
+        secret: false,
+        description: "Embedding size. It has to match the existing index.",
+      },
+      {
+        name: "CHROMA_PERSIST_DIR",
+        example: "data/chroma",
+        required: false,
+        secret: false,
+        description: "Where the vector database lives on disk.",
+      },
+      {
+        name: "UPLOAD_ENABLED",
+        example: "true",
+        required: false,
+        secret: false,
+        description: "Uploading and removing documents from the interface. Off by default in deployments because the corpus is shared.",
+      },
+      {
+        name: "INGEST_API_TOKEN",
+        example: "a-long-random-value",
+        required: false,
+        secret: true,
+        description: "Protects the operator ingestion endpoint. Without it that endpoint refuses to serve. It is never sent to the browser.",
+      },
+      {
+        name: "ALLOWED_ORIGINS",
+        example: "https://example.vercel.app",
+        required: false,
+        secret: false,
+        description: "Only needed if a browser talks to the backend directly. In the recommended setup it stays empty.",
+      },
+    ],
+    renderTitle: "Deploying on Render",
+    renderIntro:
+      "If you deploy the backend to Render, the environment variables go into the service's own settings rather than into a file.",
+    renderSteps: [
+      { title: "Render", body: "Create the project as a web service in your account." },
+      { title: "Service", body: "The render.yaml blueprint in the repository already defines the plan, the Docker file and the health check." },
+      { title: "Environment", body: "Open the Environment section in the service settings." },
+      {
+        title: "Environment Variables",
+        body: "Enter GEMINI_API_KEY here. The blueprint marks that variable as not synced, so its value lives in the dashboard and never in the repository.",
+      },
+    ],
+    secretsTitle: "What must never be committed?",
+    secretsBody: [
+      "GEMINI_API_KEY and INGEST_API_TOKEN are secrets. They belong in your local .env file or in your hosting provider's environment variable panel, nowhere else.",
+      "The .env file is in .gitignore and is never pushed. The repository only carries .env.example, which holds no real values.",
+      "None of these values reach the browser: model calls happen on the server, and the interface only talks to its own server.",
+    ],
+    frontendTitle: "Interface environment variables",
+    frontendBody:
+      "The interface carries no API key at all. Its server only needs to know where to find the backend.",
+    frontendVars: [
+      {
+        name: "AGENT_API_URL",
+        example: "http://localhost:8000",
+        required: true,
+        secret: false,
+        description: "The backend address. It is NOT prefixed with NEXT_PUBLIC_: it is read on the server only and the browser never sees it.",
+      },
+      {
+        name: "DEMO_MODE",
+        example: "false",
+        required: false,
+        secret: false,
+        description: "Setting it to false turns on live mode, so questions really go to the agent.",
+      },
+      {
+        name: "UPLOAD_ENABLED",
+        example: "true",
+        required: false,
+        secret: false,
+        description: "Whether the document area is active in the interface. It works together with the backend setting of the same name.",
+      },
+      {
+        name: "NEXT_PUBLIC_GITHUB_URL",
+        example: "https://github.com/user/repository",
+        required: false,
+        secret: false,
+        description: "The public repository link. It is not a secret, so it may be exposed to the browser with the NEXT_PUBLIC_ prefix.",
+      },
+    ],
+    runTitle: "Commands",
+    runIntro: "The backend and the interface are separate processes; run them in two terminals.",
+    copy: "Copy",
+    copied: "Copied",
   },
 
   footer: {

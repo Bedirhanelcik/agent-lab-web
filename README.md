@@ -6,22 +6,36 @@ web katmanıdır ve bağımsız olarak çalıştırılabilir.
 
 ## Durum
 
-Beş sayfa: `/`, `/system`, `/playground`, `/evaluation`, `/about`.
+Altı sayfa: `/`, `/system` (nasıl çalışır), `/playground`, `/evaluation`,
+`/api-setup`, `/about`.
 
 Uygulama varsayılan olarak demo modundadır (`DEMO_MODE=false` yazılmadıkça) ve
 bu her sayfada `STATUS: DEMO` etiketiyle görünür.
 
 - **Demo modu (varsayılan):** playground hiçbir ağ isteği yapmaz; sorular
   `content/demo-runs.json` içindeki hazırlanmış koşularla yerel olarak
-  eşleştirilir.
-- **Canlı mod:** `DEMO_MODE=false` ve `AGENT_API_URL` tanımlıyken playground,
-  Next.js sunucu tarafındaki `/api/ask` route handler'ı üzerinden agent
-  servisinin `/agent/ask` uç noktasını çağırır. Tarayıcı backend adresini hiç
-  görmez; model çağrıları yalnızca sunucu tarafında yapılır.
+  eşleştirilir. Örnek korpus açıkça örnek olarak etiketlenir.
+- **Canlı mod:** `DEMO_MODE=false` ve `AGENT_API_URL` tanımlıyken kullanıcı
+  kendi dokümanlarını yükleyebilir ve onlara soru sorabilir. İstekler Next.js
+  sunucu tarafındaki route handler'lardan geçer; tarayıcı backend adresini ve
+  hiçbir sırrı görmez.
+- **Doküman alanı:** sürükle-bırak yükleme, indeksleme durumu, korpustaki
+  dokümanların listesi, chunk sayıları, tek tek kaldırma ve korpusu sıfırlama.
+  Yazma işlemleri `UPLOAD_ENABLED` bayrağına bağlıdır; kapalıyken alan salt
+  okunur görünür ve nedeni açıkça yazılır.
 - **Değerlendirme:** `/evaluation` varsa bir değerlendirme artefaktını okur,
   yoksa yokluğunu açıkça bildirir — sonuç uydurmaz.
 
-Doküman yükleme ve dağıtım yapılandırması sonraki aşamalara ait.
+## Dil ve tema
+
+Sekiz dil: Türkçe, English, Français, العربية, Español, Português,
+中文（简体）, हिन्दी. Seçim bir çerezde saklanır ve sunucuda okunur, bu yüzden
+ilk render doğru dilde gelir ve sayfa başlıkları da çevrilir. Arapça seçildiğinde
+`dir="rtl"` sunucuda yazılır ve düzen mantıksal özelliklerle yansır.
+
+Aydınlık/karanlık tema `localStorage`'da saklanır; kayıtlı seçim yoksa sistem
+tercihi geçerli olur. Seçim sayfa boyanmadan önce uygulanır, böylece yanlış
+temada bir kare görünmez.
 
 ## Çalıştırma
 
@@ -29,6 +43,21 @@ Doküman yükleme ve dağıtım yapılandırması sonraki aşamalara ait.
 npm install
 npm run dev        # http://localhost:3000
 ```
+
+Canlı mod (kendi dokümanlarınızı yükleyip soru sorabilmek için), iki terminal:
+
+```bash
+# 1) agent + RAG servisi (ayrı depo)
+UPLOAD_ENABLED=true uv run uvicorn rag_tr.api.main:app --port 8000
+
+# 2) arayüz
+DEMO_MODE=false UPLOAD_ENABLED=true AGENT_API_URL=http://localhost:8000 npm run dev
+```
+
+> Tarayıcıda `localhost` kullanın. Next.js geliştirme sunucusu `127.0.0.1`
+> üzerinden gelen `/_next/hmr` isteklerini çapraz-köken sayıp engelliyor; bu
+> durumda sayfa görünür ama istemci tarafı hidrasyon olmadığı için düğmeler
+> tepkisiz kalır.
 
 ```bash
 npm run lint
