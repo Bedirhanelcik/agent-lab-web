@@ -6,6 +6,16 @@ import { usePathname } from "next/navigation";
 import { ModeBadge } from "@/components/mode-badge";
 import { NAV_ITEMS, type AppMode } from "@/lib/ui-config";
 
+/**
+ * Üst gezinme.
+ *
+ * Mobilde iki satır olarak dizilir: ilk satırda marka ile durum etiketi,
+ * ikinci satırda bağlantı listesi. Beş bağlantı, marka ve etiket tek satıra
+ * sığmıyor (375px'lik bir ekranda yaklaşık 675px genişlik isterler) ve tek
+ * satırda bırakıldığında sayfanın tamamı yatay olarak kayıyor. Liste ayrıca
+ * kendi içinde kaydırılabilir: 320px gibi daha dar ekranlarda taşan kısım
+ * sayfayı değil yalnızca şeridi kaydırır.
+ */
 export function Navigation({ mode }: { mode: AppMode }) {
   const pathname = usePathname();
 
@@ -13,7 +23,7 @@ export function Navigation({ mode }: { mode: AppMode }) {
     <header className="sticky top-0 z-50 border-b border-line bg-bg/85 backdrop-blur-md">
       <nav
         aria-label="Ana gezinme"
-        className="mx-auto flex h-14 max-w-6xl items-center gap-4 px-5 sm:px-8"
+        className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 px-5 pb-2 pt-3 sm:px-8 md:h-14 md:flex-nowrap md:py-0"
       >
         <Link
           href="/"
@@ -22,17 +32,21 @@ export function Navigation({ mode }: { mode: AppMode }) {
           Agent<span className="text-accent">·</span>Lab
         </Link>
 
-        <ul className="flex items-center gap-1 sm:gap-2">
+        <div className="order-2 ml-auto shrink-0 md:order-3">
+          <ModeBadge mode={mode} />
+        </div>
+
+        <ul className="no-scrollbar order-3 flex w-full items-center gap-1 overflow-x-auto pt-2 md:order-2 md:ml-0 md:w-auto md:gap-2 md:overflow-visible md:pt-0">
           {NAV_ITEMS.map((item) => {
             const active =
               item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
 
             return (
-              <li key={item.href}>
+              <li key={item.href} className="shrink-0">
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className={`mono-label px-2 py-1 transition-colors ${
+                  className={`mono-label px-1.5 py-1 text-[0.6875rem] transition-colors sm:px-2 sm:text-xs ${
                     active ? "text-fg" : "text-faint hover:text-muted"
                   }`}
                 >
@@ -42,10 +56,6 @@ export function Navigation({ mode }: { mode: AppMode }) {
             );
           })}
         </ul>
-
-        <div className="ml-auto">
-          <ModeBadge mode={mode} />
-        </div>
       </nav>
     </header>
   );

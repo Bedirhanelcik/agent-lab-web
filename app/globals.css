@@ -11,6 +11,11 @@
   --color-faint: #767e8a;
   --color-line: #1b1f27;
   --color-line-bright: #2d343f;
+  /* Yalnizca form alanlari icin: dekoratif kenarliklar (line, line-bright)
+     zeminle 1.2-1.6 kontrast tasiyor ve bir metin alaninin tek gorsel siniri
+     kenarligi oldugu icin alan pratikte kayboluyordu. Bu ton zeminle 3.18:1
+     kontrast verir, yani WCAG 1.4.11'in metin disi esigini gecer. */
+  --color-line-field: #596070;
   --color-accent: #5eead4;
 
   --font-sans: var(--font-geist-sans);
@@ -161,4 +166,16 @@ body {
 .card:hover {
   border-color: var(--color-line-bright);
   background-color: var(--color-surface-2);
+}
+
+/* Yatay kaydirilabilen seritler (mobil gezinme) icin: kaydirma calisir ama
+   cubuk gorunmez, cunku serit basligin icinde duruyor ve cubuk orada gorsel
+   gurultu yapiyor. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

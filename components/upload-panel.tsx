@@ -125,7 +125,7 @@ export function UploadPanel({
             setPhase({ kind: "idle" });
           }}
           aria-label="Yüklenecek dokümanlar"
-          className="min-w-0 flex-1 border border-line bg-surface px-4 py-3 text-sm text-muted file:mr-4 file:border-0 file:bg-transparent file:font-mono file:text-xs file:text-fg"
+          className="min-w-0 flex-1 border border-line-field bg-surface px-4 py-3 text-sm text-muted file:mr-4 file:border-0 file:bg-transparent file:font-mono file:text-xs file:text-fg disabled:border-line-bright"
         />
         <button
           type="button"

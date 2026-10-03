@@ -39,7 +39,7 @@ export function ToolCalls({ calls }: { calls: AgentToolCall[] }) {
               <span className={`mono-label ${STATUS_TONE[call.status]}`}>{call.status}</span>
             </div>
 
-            <p className="mt-3 text-sm text-muted">
+            <p className="mt-3 break-words text-sm text-muted">
               <span className="font-mono text-xs text-faint">query </span>
               <span className="text-fg">&ldquo;{call.query}&rdquo;</span>
             </p>
@@ -56,7 +56,7 @@ export function ToolCalls({ calls }: { calls: AgentToolCall[] }) {
               {call.source_file ? (
                 <div className="flex gap-2">
                   <dt>source_file</dt>
-                  <dd className="text-muted">{call.source_file}</dd>
+                  <dd className="break-all text-muted">{call.source_file}</dd>
                 </div>
               ) : null}
             </dl>

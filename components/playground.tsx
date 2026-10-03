@@ -180,7 +180,7 @@ export function Playground({
             }
             autoComplete="off"
             disabled={busy}
-            className="min-w-0 flex-1 border border-line bg-surface px-4 py-3 text-fg placeholder:text-faint focus:border-line-bright focus:outline-none disabled:text-muted"
+            className="min-w-0 flex-1 border border-line-field bg-surface px-4 py-3 text-fg placeholder:text-faint focus:border-accent focus:outline-none disabled:border-line-bright disabled:text-muted"
           />
           <button
             type="submit"

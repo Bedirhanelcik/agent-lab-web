@@ -19,9 +19,10 @@ export function PassageList({ sources }: { sources: AgentSource[] }) {
           className="reveal bg-surface p-4"
           style={{ animationDelay: `${index * 60}ms` }}
         >
-          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-            <span className="mono-label text-fg">{source.source_file}</span>
-            <code className="font-mono text-xs text-accent">{source.chunk_id}</code>
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-4 gap-y-1">
+            {/* break-all: dosya adi bosluksuz ve uzun olabilir. */}
+            <span className="mono-label break-all text-fg">{source.source_file}</span>
+            <code className="break-all font-mono text-xs text-accent">{source.chunk_id}</code>
           </div>
 
           <dl className="mt-3 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-faint">
@@ -41,7 +42,9 @@ export function PassageList({ sources }: { sources: AgentSource[] }) {
             </div>
           </dl>
 
-          <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-muted">{source.text}</p>
+          <p className="mt-3 line-clamp-4 break-words text-sm leading-relaxed text-muted">
+            {source.text}
+          </p>
         </li>
       ))}
     </ul>
