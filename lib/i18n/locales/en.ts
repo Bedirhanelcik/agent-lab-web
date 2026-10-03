@@ -31,11 +31,13 @@ export const en = {
     skipToContent: "Skip to content",
     ariaLabel: "Main navigation",
     home: "Home",
-    system: "How it works",
+    system: "How It Works",
     playground: "Playground",
     evaluation: "Evaluation",
     apiSetup: "API Setup",
     about: "About",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
 
   language: {

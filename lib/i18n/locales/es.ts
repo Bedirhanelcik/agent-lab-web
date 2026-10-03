@@ -36,6 +36,8 @@ export const es = {
     evaluation: "Evaluation",
     apiSetup: "Configuración API",
     about: "Acerca de",
+    openMenu: "Abrir el menú",
+    closeMenu: "Cerrar el menú",
   },
 
   language: {

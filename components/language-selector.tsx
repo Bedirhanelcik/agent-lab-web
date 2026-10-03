@@ -15,12 +15,19 @@ import {
 /**
  * Dil seçici.
  *
- * Bilinçli olarak yerel bir `<select>`: klavye, ekran okuyucu ve mobil
+ * Kontrolün kendisi yerel bir `<select>`: klavye, ekran okuyucu ve mobil
  * tarayıcıların kendi seçim arayüzü bedavaya geliyor; elle yazılmış bir açılır
  * menünün odak tuzağı, ok tuşları ve `aria-expanded` yükümlülüklerini taşımak
- * gerekmiyor. Her dil kendi adıyla yazılıyor ("Français", "العربية") ve yanında
- * kodu duruyor; yalnızca bayrak kullanılmıyor çünkü bayrak ülke gösterir, dil
- * göstermez.
+ * gerekmiyor.
+ *
+ * Görünen etiket ise ayrı bir `<span>`: yerel bir `select` kutusu EN UZUN
+ * seçeneğe göre boyutlanır, yani "Türkçe" seçiliyken bile kutu
+ * "中文（简体）" kadar geniş kalır ve metinle ok arasında kocaman bir boşluk
+ * oluşur. Select şeffaf olarak üstte duruyor (tüm davranışı o taşıyor),
+ * genişliği ise görünen metin belirliyor.
+ *
+ * Her dil kendi adıyla yazılıyor ("Français", "العربية"); yalnızca bayrak
+ * kullanılmıyor çünkü bayrak ülke gösterir, dil göstermez.
  *
  * Seçim bir çerezde saklanıyor ve `router.refresh()` sunucu bileşenlerini yeni
  * dille yeniden render ediyor. Böylece sayfa yenilendiğinde de, yeni bir sekme
@@ -41,10 +48,29 @@ export function LanguageSelector() {
   }
 
   return (
-    <div className="relative">
+    <div className="group relative inline-flex items-center rounded-md transition-colors hover:bg-surface-2 has-[select:focus-visible]:outline has-[select:focus-visible]:outline-2 has-[select:focus-visible]:outline-offset-2 has-[select:focus-visible]:outline-accent">
       <label className="sr-only" htmlFor="locale">
         {t.language.label}
       </label>
+
+      {/* Görünen etiket. `aria-hidden`: erişilebilirlik ağacında select zaten
+          var, aynı metni iki kez okutmanın anlamı yok. */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none py-1.5 ps-2 pe-6 text-sm whitespace-nowrap transition-colors group-hover:text-fg ${
+          pending ? "text-faint" : "text-muted"
+        }`}
+      >
+        {LOCALE_INFO[locale].nativeName}
+      </span>
+
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute end-1.5 top-1/2 -translate-y-1/2 text-[0.6rem] text-faint"
+      >
+        ▾
+      </span>
+
       <select
         id="locale"
         name="locale"
@@ -52,23 +78,14 @@ export function LanguageSelector() {
         disabled={pending}
         onChange={(event) => change(event.target.value)}
         aria-label={t.language.label}
-        className="mono-label cursor-pointer appearance-none border border-line-field bg-surface py-1 ps-2.5 pe-7 text-fg transition-colors hover:border-line-bright focus:border-accent focus:outline-none disabled:cursor-wait disabled:text-muted"
+        className="absolute inset-0 w-full cursor-pointer opacity-0 disabled:cursor-wait"
       >
         {LOCALES.map((code) => (
           <option key={code} value={code} className="bg-surface text-fg">
-            {LOCALE_INFO[code].nativeName} ({code.toUpperCase()})
+            {LOCALE_INFO[code].nativeName}
           </option>
         ))}
       </select>
-
-      {/* Açılır menü oku. `appearance-none` yerel oku kaldırdığı için elle
-          konuyor; `end-2` sayesinde RTL'de sola geçiyor. */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute end-2 top-1/2 -translate-y-1/2 text-[0.625rem] text-faint"
-      >
-        ▾
-      </span>
     </div>
   );
 }

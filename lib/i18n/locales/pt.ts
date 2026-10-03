@@ -36,6 +36,8 @@ export const pt = {
     evaluation: "Evaluation",
     apiSetup: "Configuração da API",
     about: "Sobre",
+    openMenu: "Abrir o menu",
+    closeMenu: "Fechar o menu",
   },
 
   theme: {

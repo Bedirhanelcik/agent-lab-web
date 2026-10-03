@@ -9,9 +9,10 @@
    form alanları, kod panelleri ve durum göstergeleri dahil her şey birlikte
    değişiyor -- bileşenlerde tek bir koşullu sınıf yazmaya gerek kalmadan.
 
-   Üç durum var: açık (varsayılan tanım), sistem tercihi karanlıkken karanlık,
-   ve kullanıcının açık seçimi (`data-theme`). Kullanıcı seçimi her iki yönde
-   de sistem tercihini ezer.
+   İki durum var: varsayılan karanlık ve kullanıcının açıkça seçtiği aydınlık.
+   Seçim çerezde saklandığı için sunucu `data-theme` niteliğini doğru değerle
+   üretir; ilk boyama zaten doğru temada yapılır ve hydration uyuşmazlığı
+   oluşmaz.
    ========================================================================= */
 
 @theme {
@@ -32,51 +33,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* --- açık tema (varsayılan tanım) --- */
+/* --- karanlık tema: uygulamanın VARSAYILANI ---
+   İşletim sistemi tercihi bilinçli olarak sorulmuyor (`prefers-color-scheme`
+   kuralı yok): ilk ziyaretin hangi temada açılacağı uygulamanın kararı ve bu
+   arayüz koyu görünüm için tasarlandı. Kullanıcı aydınlığı seçerse tercihi
+   çerezde saklanır, sunucu `data-theme="light"` üretir ve aşağıdaki blok
+   devreye girer. */
 :root {
-  color-scheme: light;
-
-  --c-bg: #fbfbfc;
-  --c-surface: #ffffff;
-  --c-surface-2: #f3f4f7;
-  --c-fg: #0e1116;
-  --c-muted: #4a515d;
-  --c-faint: #646b78;
-  --c-line: #e4e6ec;
-  --c-line-bright: #c7cbd4;
-  /* Form alanlarının tek görsel sınırı kenarlıklarıdır; bu ton zeminle
-     3:1'in üzerinde kontrast taşır (WCAG 1.4.11). */
-  --c-line-field: #868d9a;
-  --c-accent: #0f766e;
-  --c-accent-soft: #0f766e33;
-  --c-danger: #b42318;
-  /* Izgara dokusu: açık zeminde siyah, koyu zeminde beyaz olmalı. */
-  --c-texture: #0e111609;
-}
-
-/* --- sistem tercihi karanlık, kullanıcı açıkça aydınlık seçmemiş --- */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --c-bg: #07080b;
-    --c-surface: #0b0d12;
-    --c-surface-2: #0f1218;
-    --c-fg: #f2f4f7;
-    --c-muted: #9aa2ad;
-    --c-faint: #767e8a;
-    --c-line: #1b1f27;
-    --c-line-bright: #2d343f;
-    --c-line-field: #596070;
-    --c-accent: #5eead4;
-    --c-accent-soft: #5eead433;
-    --c-danger: #f87171;
-    --c-texture: #ffffff0a;
-  }
-}
-
-/* --- kullanıcının açık seçimi: karanlık --- */
-:root[data-theme="dark"] {
   color-scheme: dark;
 
   --c-bg: #07080b;
@@ -87,11 +50,33 @@
   --c-faint: #767e8a;
   --c-line: #1b1f27;
   --c-line-bright: #2d343f;
+  /* Form alanlarının tek görsel sınırı kenarlıklarıdır; bu ton zeminle
+     3:1'in üzerinde kontrast taşır (WCAG 1.4.11). */
   --c-line-field: #596070;
   --c-accent: #5eead4;
   --c-accent-soft: #5eead433;
   --c-danger: #f87171;
+  /* Izgara dokusu: koyu zeminde beyaz, açık zeminde siyah olmalı. */
   --c-texture: #ffffff0a;
+}
+
+/* --- aydınlık tema: yalnızca kullanıcı açıkça seçtiğinde --- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --c-bg: #fbfbfc;
+  --c-surface: #ffffff;
+  --c-surface-2: #f3f4f7;
+  --c-fg: #0e1116;
+  --c-muted: #4a515d;
+  --c-faint: #646b78;
+  --c-line: #e4e6ec;
+  --c-line-bright: #c7cbd4;
+  --c-line-field: #868d9a;
+  --c-accent: #0f766e;
+  --c-accent-soft: #0f766e33;
+  --c-danger: #b42318;
+  --c-texture: #0e111609;
 }
 
 body {

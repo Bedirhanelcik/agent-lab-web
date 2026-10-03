@@ -34,6 +34,8 @@ export const zh = {
     evaluation: "Evaluation",
     apiSetup: "API 配置",
     about: "关于",
+    openMenu: "打开菜单",
+    closeMenu: "关闭菜单",
   },
 
   language: {

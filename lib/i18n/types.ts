@@ -102,6 +102,8 @@ export interface Messages {
     evaluation: string;
     apiSetup: string;
     about: string;
+    openMenu: string;
+    closeMenu: string;
   };
 
   theme: {

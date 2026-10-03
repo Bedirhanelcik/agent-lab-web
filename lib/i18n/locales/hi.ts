@@ -31,11 +31,13 @@ export const hi = {
     skipToContent: "सामग्री पर जाएँ",
     ariaLabel: "मुख्य नेविगेशन",
     home: "मुख्य पृष्ठ",
-    system: "यह कैसे काम करता है",
+    system: "कार्यप्रणाली",
     playground: "Playground",
     evaluation: "Evaluation",
     apiSetup: "API सेटअप",
     about: "परिचय",
+    openMenu: "मेनू खोलें",
+    closeMenu: "मेनू बंद करें",
   },
 
   language: {

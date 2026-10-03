@@ -4,9 +4,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { I18nProvider } from "@/components/i18n-provider";
 import { Navigation } from "@/components/navigation";
-import { THEME_INIT_SCRIPT } from "@/components/theme-toggle";
 import { APP_MODE } from "@/lib/config";
 import { getI18n } from "@/lib/i18n/server";
+import { resolveTheme } from "@/lib/theme-server";
 
 import "./globals.css";
 
@@ -42,33 +42,31 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const { locale, dir, t } = await getI18n();
+  const [{ locale, dir, t }, theme] = await Promise.all([getI18n(), resolveTheme()]);
 
   return (
-    // `dir` sunucuda yazılıyor: Arapça seçildiğinde sayfa ilk render'da RTL
-    // geliyor, LTR'den RTL'ye atlayan bir kare görünmüyor.
+    // Üç nitelik de SUNUCUDA yazılıyor ve üçü de çerezden okunuyor: dil, yön
+    // ve tema. Bu yüzden sunucunun ürettiği HTML ile istemcinin ilk render'ı
+    // birebir aynı -- boyamadan önce çalışan bir betiğe, `data-theme`'i
+    // sonradan değiştiren bir efekte veya `suppressHydrationWarning`'e gerek
+    // yok. Arapça seçildiğinde sayfa ilk render'da RTL geliyor; tema seçimi
+    // yoksa ilk kare zaten koyu.
     <html
       lang={locale}
       dir={dir}
+      data-theme={theme}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        {/* Kayıtlı tema seçimi React hidrasyonunu beklemeden uygulanır; aksi
-            halde koyu temayı seçmiş bir kullanıcı ilk kareyi aydınlık görürdü.
-            Elle bir <head> yazmak yerine script doğrudan burada duruyor:
-            React 19 script elemanlarını kendisi head'e taşıyor ve elle yazılan
-            bir <head> bu ağacın hidrasyonunu bozuyor. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
-
         <I18nProvider locale={locale} messages={t}>
           <a
             href="#main"
-            className="mono-label sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-60 focus:border focus:border-accent focus:bg-bg focus:px-3 focus:py-2 focus:text-fg"
+            className="sr-only rounded-md text-sm focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-60 focus:border focus:border-accent focus:bg-bg focus:px-3 focus:py-2 focus:text-fg"
           >
             {t.nav.skipToContent}
           </a>
 
-          <Navigation mode={APP_MODE} />
+          <Navigation mode={APP_MODE} theme={theme} />
 
           <main id="main" className="flex-1">
             {children}

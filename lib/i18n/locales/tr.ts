@@ -37,12 +37,14 @@ export const tr = {
   nav: {
     skipToContent: "İçeriğe geç",
     ariaLabel: "Ana gezinme",
-    home: "Ana sayfa",
-    system: "Nasıl çalışır",
+    home: "Ana Sayfa",
+    system: "Nasıl Çalışır",
     playground: "Playground",
     evaluation: "Evaluation",
     apiSetup: "API Kurulumu",
     about: "Hakkında",
+    openMenu: "Menüyü aç",
+    closeMenu: "Menüyü kapat",
   },
 
   language: {

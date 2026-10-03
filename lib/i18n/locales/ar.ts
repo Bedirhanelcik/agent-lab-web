@@ -36,6 +36,8 @@ export const ar = {
     evaluation: "Evaluation",
     apiSetup: "إعداد API",
     about: "عن المشروع",
+    openMenu: "فتح القائمة",
+    closeMenu: "إغلاق القائمة",
   },
 
   language: {

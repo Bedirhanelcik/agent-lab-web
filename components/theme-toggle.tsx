@@ -1,74 +1,16 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState } from "react";
 
 import { useI18n } from "@/components/i18n-provider";
-
-export const THEME_STORAGE_KEY = "agentlab_theme";
-
-/** Tema değiştiğinde dinleyicilere haber veren olay. */
-const THEME_EVENT = "agentlab:theme";
-
-type Theme = "light" | "dark";
-
-/**
- * Sayfa boyanmadan ÖNCE çalışan betik.
- *
- * Tema seçimi localStorage'da duruyor ve yalnızca tarayıcıda okunabiliyor.
- * React hidrasyonunu beklersek, kullanıcı koyu tema seçmiş olsa bile ilk kare
- * aydınlık çıkar ve göz alıcı bir yanıp sönme olur. Bu yüzden seçim
- * `<head>` içinde, senkron olarak kök elemana yazılıyor.
- *
- * Kayıtlı seçim yoksa hiçbir şey yazılmaz: CSS `prefers-color-scheme` ile
- * sistem tercihini zaten uyguluyor.
- */
-export const THEME_INIT_SCRIPT = `
-(function () {
-  try {
-    var stored = localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});
-    if (stored === "light" || stored === "dark") {
-      document.documentElement.dataset.theme = stored;
-    }
-  } catch (error) {
-    /* Depolama kapalıysa sistem tercihi geçerli kalır. */
-  }
-})();
-`;
-
-/**
- * Tema, React'in dışında yaşayan bir durum: kök elemanın `data-theme`
- * niteliğinde ve işletim sisteminin tercihinde. Bu yüzden `useState` yerine
- * `useSyncExternalStore` ile okunuyor -- durum nerede yaşıyorsa orayı tek
- * kaynak kabul etmek, kopyasını bir efektle senkron tutmaya çalışmaktan daha
- * az kırılgan.
- */
-function subscribe(onChange: () => void): () => void {
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
-  media.addEventListener("change", onChange);
-  window.addEventListener(THEME_EVENT, onChange);
-  return () => {
-    media.removeEventListener("change", onChange);
-    window.removeEventListener(THEME_EVENT, onChange);
-  };
-}
-
-function getSnapshot(): Theme {
-  const explicit = document.documentElement.dataset.theme;
-  if (explicit === "light" || explicit === "dark") return explicit;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-/** Sunucuda tema bilinemez; ilk render nötr kalır. */
-function getServerSnapshot(): Theme | null {
-  return null;
-}
+import { persistTheme, type Theme } from "@/lib/theme";
 
 function SunIcon() {
   return (
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className="size-4"
+      className="size-[1.05rem]"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -85,7 +27,7 @@ function MoonIcon() {
     <svg
       aria-hidden="true"
       viewBox="0 0 24 24"
-      className="size-4"
+      className="size-[1.05rem]"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -100,27 +42,32 @@ function MoonIcon() {
 /**
  * Aydınlık/karanlık geçişi.
  *
+ * Başlangıç değeri SUNUCUDAN prop olarak geliyor ve sunucu onu çerezden
+ * okuyor. Bu yüzden sunucunun ürettiği HTML ile istemcinin ilk render'ı
+ * birebir aynı: bileşen render sırasında ne `localStorage`'a ne de
+ * `document`'a bakıyor, dolayısıyla hydration uyuşmazlığı üretemez.
+ *
+ * Tıklamada iki şey yapılıyor: kök elemanın `data-theme` niteliği hemen
+ * güncelleniyor (geçiş anında görünür olsun diye) ve çerez yazılıyor (sonraki
+ * istekte sunucu aynı değeri üretsin diye). Bu mutasyon hydration'dan SONRA
+ * ve bir olay işleyicisinde gerçekleştiği için React'in uyuşmazlık kontrolüne
+ * takılmıyor.
+ *
  * Düğme, TIKLANDIĞINDA geçilecek temanın simgesini gösterir (karanlıktayken
- * güneş); erişilebilir adı da o eylemi söyler, böylece simgenin anlamı ekran
- * okuyucuda tahmine kalmaz.
+ * güneş); erişilebilir adı da o eylemi söyler.
  */
-export function ThemeToggle() {
+export function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
   const { t } = useI18n();
-  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   function toggle() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem(THEME_STORAGE_KEY, next);
-    } catch {
-      /* Depolama kapalıysa seçim bu oturumla sınırlı kalır. */
-    }
-    window.dispatchEvent(new Event(THEME_EVENT));
+    persistTheme(next);
+    setTheme(next);
   }
 
-  const isDark = theme === "dark";
-  const label = theme === null ? t.theme.label : isDark ? t.theme.toLight : t.theme.toDark;
+  const label = theme === "dark" ? t.theme.toLight : t.theme.toDark;
 
   return (
     <button
@@ -128,11 +75,9 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label={label}
       title={label}
-      className="inline-flex size-8 shrink-0 items-center justify-center border border-line text-muted transition-colors hover:border-line-bright hover:text-fg"
+      className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-fg"
     >
-      {/* Tema okunana kadar ikon yerine boşluk: yanlış simgeyi bir kare
-          gösterip değiştirmek, hiç göstermemekten daha rahatsız edici. */}
-      {theme === null ? <span className="size-4" /> : isDark ? <SunIcon /> : <MoonIcon />}
+      {theme === "dark" ? <SunIcon /> : <MoonIcon />}
     </button>
   );
 }
