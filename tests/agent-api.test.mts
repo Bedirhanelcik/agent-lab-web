@@ -393,3 +393,55 @@ test("409 boş korpus olarak ayrıştırılır", async () => {
 test("kod gelmezse 409 de boş korpusa düşer", () => {
   assert.equal(mapErrorResponse(409, null), "corpus_empty");
 });
+
+// --- cevap dili ---
+//
+// Secilen arayuz dili istekle birlikte gider ve backend cevabi o dilde
+// uretir. Burada onemli olan iki sey: dil gercekten govdeye giriyor ve bu
+// EK bir istek uretmiyor (soru once cevrilip sonra sorulmuyor).
+
+test("dil verildiğinde gövdeye eklenir", async () => {
+  const { impl, captured } = fakeFetch({ status: 200, body: validBackendResponse() });
+
+  await askAgent("Soru?", { baseUrl: BASE, language: "fr", fetchImpl: impl });
+
+  assert.deepEqual(captured[0].body, { question: "Soru?", language: "fr" });
+});
+
+test("dil verilmezse gövdeye hiç eklenmez", async () => {
+  const { impl, captured } = fakeFetch({ status: 200, body: validBackendResponse() });
+
+  await askAgent("Soru?", { baseUrl: BASE, fetchImpl: impl });
+
+  assert.equal("language" in (captured[0].body as object), false);
+});
+
+test("boş veya sadece boşluk olan dil gönderilmez", async () => {
+  for (const language of ["", "   ", null]) {
+    const { impl, captured } = fakeFetch({ status: 200, body: validBackendResponse() });
+
+    await askAgent("Soru?", { baseUrl: BASE, language, fetchImpl: impl });
+
+    assert.equal("language" in (captured[0].body as object), false);
+  }
+});
+
+test("dil seçimi ek bir istek üretmez", async () => {
+  // Ceviri icin ikinci bir tur olmadigini kanitlar: her dilde tek istek.
+  for (const language of ["tr", "en", "fr", "ar", "es", "zh", "hi"]) {
+    const { impl, captured } = fakeFetch({ status: 200, body: validBackendResponse() });
+
+    await askAgent("Soru?", { baseUrl: BASE, language, fetchImpl: impl });
+
+    assert.equal(captured.length, 1, `${language}: tek istek olmalı`);
+    assert.equal(captured[0].url, `${BASE}/agent/ask`);
+  }
+});
+
+test("dil, top_k ile birlikte gönderilebilir", async () => {
+  const { impl, captured } = fakeFetch({ status: 200, body: validBackendResponse() });
+
+  await askAgent("Soru?", { baseUrl: BASE, topK: 3, language: "zh", fetchImpl: impl });
+
+  assert.deepEqual(captured[0].body, { question: "Soru?", top_k: 3, language: "zh" });
+});

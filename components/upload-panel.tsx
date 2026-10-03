@@ -2,6 +2,8 @@
 
 import { useRef, useState } from "react";
 
+import { useI18n } from "@/components/i18n-provider";
+import { format } from "@/lib/i18n";
 import {
   ACCEPTED_UPLOAD_EXTENSIONS,
   MAX_UPLOAD_BYTES,
@@ -11,20 +13,6 @@ import {
   type UploadedFileResult,
 } from "@/lib/upload-api";
 import type { AppMode } from "@/lib/ui-config";
-
-const ERROR_COPY: Record<UploadErrorKind, string> = {
-  not_configured:
-    "Agent servisinin adresi tanımlı değil, bu yüzden doküman gönderilemedi.",
-  upload_disabled: "Doküman yükleme bu ortamda kapalı.",
-  no_files: "Önce bir dosya seçin.",
-  unsupported_file_type: "Yalnızca PDF, TXT ve MD dosyaları kabul ediliyor.",
-  file_too_large: `Dosya çok büyük. En fazla ${Math.round(MAX_UPLOAD_BYTES / (1024 * 1024))} MB.`,
-  invalid_request: "Dosya adı veya istek kabul edilmedi. Farklı bir dosya adıyla deneyin.",
-  upstream_error: "Agent servisi yükleme sırasında hata döndürdü.",
-  bad_response: "Yükleme yanıtı beklenen biçimde değil, bu yüzden sonuç gösterilmiyor.",
-  timeout: "Yükleme beklenen süre içinde tamamlanmadı ve iptal edildi.",
-  network: "Agent servisine ulaşılamadı. Servisin çalıştığından emin olun.",
-};
 
 type Phase =
   | { kind: "idle" }
@@ -46,12 +34,20 @@ export function UploadPanel({
   mode: AppMode;
   uploadEnabled: boolean;
 }) {
+  const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
   const [selected, setSelected] = useState<File[]>([]);
 
   const available = mode === "live" && uploadEnabled;
   const busy = phase.kind === "uploading";
+
+  /** Boyut sınırı mesajı tek bir şablondan doldurulur: sayı her dilde
+   *  cümlenin farklı yerinde duruyor. */
+  function errorMessage(code: UploadErrorKind): string {
+    const template = t.upload.errors[code] ?? code;
+    return format(template, { max: Math.round(MAX_UPLOAD_BYTES / (1024 * 1024)) });
+  }
 
   async function submit() {
     if (!available || busy || selected.length === 0) return;
@@ -87,30 +83,25 @@ export function UploadPanel({
   if (!available) {
     return (
       <section className="border border-line border-dashed p-5">
-        <h2 className="eyebrow">Upload</h2>
+        <h2 className="eyebrow">{t.upload.heading}</h2>
         <p className="mt-3 text-sm leading-relaxed text-muted">
-          {mode === "demo"
-            ? "Demo modunda doküman yükleme yapılmaz; gösterilen koşular hazırlanmış örneklerdir."
-            : "Doküman yükleme bu ortamda kapalı."}
+          {mode === "demo" ? t.upload.disabledDemo : t.upload.disabledEnv}
         </p>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-faint">
-          Yükleme yalnızca yerel geliştirmede açılır. Sebebi mimari: korpus şu an tüm
-          ziyaretçiler arasında paylaşımlı, yani bir ziyaretçinin yüklediği doküman
-          diğerlerinin aramalarına da girer. Kullanıcı bazlı izolasyon eklenmeden
-          yükleme internete açık bırakılmamalı.
+          {t.upload.disabledReason}
         </p>
-        <p className="mt-3 font-mono text-xs text-faint">UPLOAD_ENABLED=false</p>
+        <p className="mt-3 font-mono text-xs text-faint" dir="ltr">
+          UPLOAD_ENABLED=false
+        </p>
       </section>
     );
   }
 
   return (
     <section className="border border-line p-5">
-      <h2 className="eyebrow">Upload</h2>
+      <h2 className="eyebrow">{t.upload.heading}</h2>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-        PDF, TXT veya MD yükleyin. Doküman mevcut ingestion pipeline&apos;ından geçer:
-        sayfalara ayrılır, chunk&apos;lanır, embedding üretilir ve hem vektör hem keyword
-        index&apos;ine yazılır. Sonrasında yukarıdaki soru alanından aranabilir.
+        {t.upload.availableBody}
       </p>
 
       <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -124,8 +115,8 @@ export function UploadPanel({
             setSelected(Array.from(event.target.files ?? []));
             setPhase({ kind: "idle" });
           }}
-          aria-label="Yüklenecek dokümanlar"
-          className="min-w-0 flex-1 border border-line-field bg-surface px-4 py-3 text-sm text-muted file:mr-4 file:border-0 file:bg-transparent file:font-mono file:text-xs file:text-fg disabled:border-line-bright"
+          aria-label={t.upload.fileInputLabel}
+          className="min-w-0 flex-1 border border-line-field bg-surface px-4 py-3 text-sm text-muted file:me-4 file:border-0 file:bg-transparent file:font-mono file:text-xs file:text-fg disabled:border-line-bright"
         />
         <button
           type="button"
@@ -133,7 +124,7 @@ export function UploadPanel({
           disabled={busy || selected.length === 0}
           className="mono-label shrink-0 border border-line-bright px-5 py-3 text-fg transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-line disabled:text-faint disabled:hover:border-line disabled:hover:text-faint"
         >
-          {busy ? "Ingesting…" : "Upload"}
+          {busy ? t.upload.submitting : t.upload.submit}
         </button>
       </div>
 
@@ -141,29 +132,30 @@ export function UploadPanel({
         {phase.kind === "uploading" ? (
           <div className="border border-line bg-surface p-4">
             <p className="mono-label text-faint">
-              <span className="pulse-dot mr-2 inline-block size-1.5 rounded-full bg-accent align-middle" />
-              Ingestion çalışıyor
+              <span className="pulse-dot me-2 inline-block size-1.5 rounded-full bg-accent align-middle" />
+              {t.upload.runningTitle}
             </p>
-            <p className="mt-2 truncate text-sm text-muted">{phase.names.join(", ")}</p>
-            <p className="mt-2 text-xs leading-relaxed text-faint">
-              Chunk&apos;lama ve embedding üretimi dosya boyutuna göre birkaç saniye
-              sürebilir.
+            <p className="mt-2 truncate text-sm text-muted" dir="auto">
+              {phase.names.join(", ")}
             </p>
+            <p className="mt-2 text-xs leading-relaxed text-faint">{t.upload.runningHint}</p>
           </div>
         ) : null}
 
         {phase.kind === "done" ? (
           <div className="border border-accent/40 bg-surface-2 p-4">
-            <p className="mono-label text-accent">Ingested</p>
+            <p className="mono-label text-accent">{t.upload.doneTitle}</p>
             <ul className="mt-3 space-y-1">
               {phase.files.map((file) => (
                 <li
                   key={file.filename}
-                  className="flex flex-wrap items-baseline gap-x-3 font-mono text-xs"
+                  className="flex min-w-0 flex-wrap items-baseline gap-x-3 font-mono text-xs"
                 >
-                  <span className="text-fg">{file.filename}</span>
+                  <span className="break-all text-fg" dir="auto">
+                    {file.filename}
+                  </span>
                   <span className="text-muted tabular-nums">
-                    {file.chunks_created} chunk
+                    {file.chunks_created} {t.upload.chunkUnit}
                   </span>
                   <span className={file.status === "ingested" ? "text-accent" : "text-faint"}>
                     {file.status}
@@ -172,20 +164,23 @@ export function UploadPanel({
               ))}
             </ul>
             <p className="mt-3 text-sm leading-relaxed text-muted">
-              Doküman artık aranabilir: korpusta toplam{" "}
-              <span className="font-mono tabular-nums text-fg">{phase.corpusChunks}</span> chunk
-              var. Yukarıdan bir soru sorduğunuzda agent bu içeriği de arayabilir.
+              {t.upload.doneBody}{" "}
+              <span className="font-mono tabular-nums text-fg">
+                {phase.corpusChunks} {t.upload.chunkUnit}
+              </span>
             </p>
           </div>
         ) : null}
 
         {phase.kind === "error" ? (
           <div className="border border-line bg-surface p-4">
-            <p className="mono-label text-fg">Yükleme başarısız</p>
+            <p className="mono-label text-fg">{t.upload.failedTitle}</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              {ERROR_COPY[phase.code]}
+              {errorMessage(phase.code)}
             </p>
-            <p className="mt-2 font-mono text-xs text-faint">{phase.code}</p>
+            <p className="mt-2 font-mono text-xs text-faint" dir="ltr">
+              {phase.code}
+            </p>
           </div>
         ) : null}
       </div>

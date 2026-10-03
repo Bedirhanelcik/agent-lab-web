@@ -2,30 +2,32 @@ import type { Metadata } from "next";
 
 import { Playground } from "@/components/playground";
 import { APP_MODE, UPLOAD_ENABLED } from "@/lib/config";
+import { getI18n } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Playground",
-  description:
-    "Hazırlanmış agent koşuları: karar izi, yapılan aramalar, getirilen pasajlar ve kaynak gösteren cevap.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.meta.playgroundTitle, description: t.meta.playgroundDescription };
+}
 
-export default function PlaygroundPage() {
+export default async function PlaygroundPage() {
+  const { t } = await getI18n();
+
   return (
     <>
       <section className="relative overflow-hidden border-b border-line">
         <div aria-hidden="true" className="grid-texture" />
         <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-14 sm:px-8 sm:pt-24 sm:pb-16">
-          <p className="eyebrow reveal">Playground</p>
+          <p className="eyebrow reveal">{t.playground.heroEyebrow}</p>
           <h1 className="display reveal mt-6 text-4xl text-fg sm:text-5xl">
-            Agent&apos;ı iş başında gör.
+            {t.playground.heroTitle}
           </h1>
           <p
             className="reveal mt-6 max-w-2xl text-base leading-relaxed text-muted"
             style={{ animationDelay: "120ms" }}
           >
             {APP_MODE === "demo"
-              ? "Bu sayfa demo modunda çalışıyor: hiçbir model çağrısı yapılmaz, gösterilen her koşu önceden hazırlanmıştır. Canlı mod ayrı bir aşamada eklenecek."
-              : "Canlı mod etkin."}
+              ? t.playground.heroDemoSubtitle
+              : t.playground.heroLiveSubtitle}
           </p>
         </div>
       </section>

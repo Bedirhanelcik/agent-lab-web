@@ -37,6 +37,12 @@ export const DEFAULT_TIMEOUT_MS = 45_000;
 export interface AskAgentOptions {
   baseUrl?: string | null;
   topK?: number | null;
+  /**
+   * Cevabin dili. Backend bunu system prompt'una bir direktif olarak
+   * ekler; soru cevrilmez ve EK bir model cagrisi yapilmaz. Verilmezse
+   * backend korpusun dilini kullanir.
+   */
+  language?: string | null;
   timeoutMs?: number;
   /** Testlerde ağ erişimi olmadan çalışmak için enjekte edilir. */
   fetchImpl?: typeof fetch;
@@ -86,8 +92,12 @@ export async function askAgent(
     }
   }
 
-  const payload: { question: string; top_k?: number } = { question: trimmed };
+  const payload: { question: string; top_k?: number; language?: string } = {
+    question: trimmed,
+  };
   if (options.topK !== undefined && options.topK !== null) payload.top_k = options.topK;
+  const language = options.language?.trim();
+  if (language) payload.language = language;
 
   const doFetch = options.fetchImpl ?? fetch;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;

@@ -179,3 +179,25 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* --- yazı sistemine göre tipografi düzeltmeleri --- */
+
+/* Devanagari ve Arap yazısında üst/alt işaretler Latin harflerinden belirgin
+   şekilde daha fazla dikey yer ister. Başlıklardaki 0.95'lik satır yüksekliği
+   Latin için doğru ama bu yazılarda satırları üst üste bindiriyor, bu yüzden
+   yalnızca o dillerde gevşetiliyor. */
+html[lang="hi"] .display,
+html[lang="ar"] .display {
+  line-height: 1.18;
+}
+
+/* Arap yazısı bitişiktir: harf aralığı açmak harfleri birbirinden koparılmış
+   gibi gösterir ve okunurluğu düşürür, bu yüzden Arapçada kapatılıyor.
+   `text-transform: uppercase` KALIYOR: Arap yazısında bir karşılığı yok
+   (sessizce yok sayılır) ama aynı etiketlerin içindeki Latin terimleri
+   (PLAYGROUND, EVALUATION, AGENT·LAB) tasarımın geri kalanıyla tutarlı
+   kalsın diye büyük harf olarak kalmalı. */
+html[lang="ar"] .mono-label,
+html[lang="ar"] .eyebrow {
+  letter-spacing: 0;
+}

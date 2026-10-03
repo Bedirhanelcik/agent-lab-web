@@ -1,45 +1,35 @@
 import Link from "next/link";
 
-const PILLARS = [
-  {
-    index: "01",
-    title: "RAG",
-    body: "Vektör araması ve BM25 ayrı ayrı çalışır, sonuçlar Reciprocal Rank Fusion ile birleşir. Chunk kimlikleri deterministiktir.",
-  },
-  {
-    index: "02",
-    title: "Agent",
-    body: "Arama yapıp yapmayacağına kendi karar verir, dönen pasajları denetler, gerekirse sorguyu yeniden formülleyip tekrar arar.",
-  },
-  {
-    index: "03",
-    title: "Evaluation",
-    body: "Davranış ölçülür: hangi status döndü, RAG gerçekten çağrıldı mı, kaynak doğru mu, korpus dışı soruda uydurma var mı.",
-  },
-] as const;
+import { getI18n } from "@/lib/i18n/server";
 
-export function Hero() {
+export async function Hero() {
+  const { t } = await getI18n();
+  const pillars = t.home.pillars;
+
   return (
     <section className="relative overflow-hidden border-b border-line">
       <div aria-hidden="true" className="grid-texture" />
 
       <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-16 sm:px-8 sm:pt-28 sm:pb-24">
-        <p className="eyebrow reveal">Agentic retrieval system</p>
+        <p className="eyebrow reveal">{t.home.heroEyebrow}</p>
 
+        {/* Başlık iki satıra bölünüyor ama satır sonu `<br>` ile zorlanmıyor:
+            diller farklı uzunlukta ve zorlanan bir satır sonu bir dilde güzel,
+            ötekinde ortada kesilmiş görünür. `block` ile iki parça olarak
+            diziliyor, dar ekranda ise kendi içinde sarıyor. */}
         <h1
           className="display reveal mt-6 text-[2.75rem] text-fg sm:text-6xl lg:text-7xl"
           style={{ animationDelay: "80ms" }}
         >
-          An agent that
-          <br />
-          knows when to search.
+          <span className="block">{t.home.heroTitleLine1}</span>
+          <span className="block">{t.home.heroTitleLine2}</span>
         </h1>
 
         <p
           className="reveal mt-7 max-w-xl text-base leading-relaxed text-muted sm:text-lg"
           style={{ animationDelay: "160ms" }}
         >
-          Hybrid retrieval. Adaptive reasoning. Grounded answers.
+          {t.home.heroSubtitle}
         </p>
 
         <div
@@ -50,21 +40,27 @@ export function Hero() {
             href="/playground"
             className="mono-label inline-flex items-center gap-2 border border-accent/50 bg-surface-2 px-5 py-3 text-accent transition-colors hover:border-accent hover:bg-surface"
           >
-            Try the agent
-            <span aria-hidden="true">→</span>
+            {t.home.ctaPlayground}
+            {/* RTL'de ok kendiliğinden ters dönmeli: `rtl:rotate-180` yön
+                değiştiğinde sağ oku sola çevirir. */}
+            <span aria-hidden="true" className="rtl:rotate-180">
+              →
+            </span>
           </Link>
 
           <Link
             href="/system"
             className="mono-label inline-flex items-center gap-2 border border-line-bright px-5 py-3 text-fg transition-colors hover:border-accent hover:text-accent"
           >
-            Explore the system
-            <span aria-hidden="true">→</span>
+            {t.home.ctaSystem}
+            <span aria-hidden="true" className="rtl:rotate-180">
+              →
+            </span>
           </Link>
         </div>
 
         <ul className="mt-20 grid gap-px border border-line bg-line sm:mt-24 sm:grid-cols-3">
-          {PILLARS.map((pillar, i) => (
+          {pillars.map((pillar, i) => (
             <li
               key={pillar.title}
               className="card reveal border-0 p-6 sm:p-7"
@@ -72,7 +68,9 @@ export function Hero() {
             >
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="mono-label text-fg">{pillar.title}</h2>
-                <span className="eyebrow">{pillar.index}</span>
+                <span className="eyebrow tabular-nums">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-muted">{pillar.body}</p>
             </li>

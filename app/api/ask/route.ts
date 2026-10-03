@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { askAgent } from "@/lib/agent-api";
 import { AGENT_API_TIMEOUT_MS, AGENT_API_URL, APP_MODE } from "@/lib/config";
+import { DEFAULT_LOCALE, isLocale } from "@/lib/i18n";
 
 /**
  * Playground'un canlı modda konuştuğu tek uç nokta.
@@ -26,13 +27,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, kind: "invalid_request" as const }, { status: 400 });
   }
 
-  const body = (payload ?? {}) as { question?: unknown; top_k?: unknown };
+  const body = (payload ?? {}) as {
+    question?: unknown;
+    top_k?: unknown;
+    language?: unknown;
+  };
   const question = typeof body.question === "string" ? body.question : "";
   const topK = typeof body.top_k === "number" ? body.top_k : null;
+  // Taninmayan bir dil kodu backend'e hic gonderilmez: orada 422 olurdu.
+  // Burada varsayilana dusmek, arayuzun calismaya devam etmesi icin yeterli.
+  const language = isLocale(body.language) ? body.language : DEFAULT_LOCALE;
 
   const result = await askAgent(question, {
     baseUrl: AGENT_API_URL,
     topK,
+    language,
     timeoutMs: AGENT_API_TIMEOUT_MS,
   });
 

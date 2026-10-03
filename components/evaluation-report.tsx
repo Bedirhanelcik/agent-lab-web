@@ -1,4 +1,8 @@
+import { format, type Messages } from "@/lib/i18n";
+import { getI18n } from "@/lib/i18n/server";
 import type { EvalCase, EvalReport } from "@/lib/eval-report";
+
+type ReportMessages = Messages["evaluation"]["report"];
 
 function Metric({
   value,
@@ -20,59 +24,60 @@ function Metric({
       >
         {value}
       </span>
-      <span className="mono-label mt-3 block text-faint">{label}</span>
+      <span className="mono-label mt-3 block break-words text-faint">{label}</span>
       {note ? <span className="mt-2 block text-xs text-muted">{note}</span> : null}
     </div>
   );
 }
 
-function CaseRow({ evalCase }: { evalCase: EvalCase }) {
+function CaseRow({ evalCase, r }: { evalCase: EvalCase; r: ReportMessages }) {
   const passedAssertions = evalCase.assertions.filter((assertion) => assertion.passed).length;
 
   return (
     <li className="bg-surface p-5 sm:p-6">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
-        <code className="font-mono text-sm text-fg">{evalCase.id}</code>
+      <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+        {/* Vaka kimliği bir sözleşme değeri: çevrilmez, olduğu gibi gösterilir. */}
+        <code className="font-mono text-sm break-all text-fg">{evalCase.id}</code>
         <span
           className={`mono-label border px-2.5 py-1 ${
             evalCase.passed ? "border-accent/40 text-accent" : "border-line-bright text-fg"
           }`}
         >
-          {evalCase.passed ? "pass" : "fail"}
+          {evalCase.passed ? r.pass : r.fail}
         </span>
       </div>
 
       <dl className="mt-4 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-faint">
         <div className="flex gap-2">
-          <dt>status</dt>
+          <dt>{r.status}</dt>
           <dd className="text-muted">{evalCase.status ?? "—"}</dd>
         </div>
         <div className="flex gap-2">
-          <dt>assertions</dt>
+          <dt>{r.assertions}</dt>
           <dd className="text-muted tabular-nums">
             {passedAssertions}/{evalCase.assertions.length}
           </dd>
         </div>
         <div className="flex gap-2">
-          <dt>agent calls</dt>
+          <dt>{r.agentCalls}</dt>
           <dd className="text-muted tabular-nums">{evalCase.llm_calls ?? "—"}</dd>
         </div>
         <div className="flex gap-2">
-          <dt>judge calls</dt>
+          <dt>{r.judgeCalls}</dt>
           <dd className="text-muted tabular-nums">{evalCase.judge_calls}</dd>
         </div>
         {evalCase.latency_ms !== null ? (
           <div className="flex gap-2">
-            <dt>latency</dt>
+            <dt>{r.latency}</dt>
             <dd className="text-muted tabular-nums">{Math.round(evalCase.latency_ms)} ms</dd>
           </div>
         ) : null}
       </dl>
 
       {evalCase.error ? (
-        <p className="mt-4 border-l border-line-bright pl-4 text-sm leading-relaxed text-muted">
-          <span className="mono-label text-fg">error </span>
-          {evalCase.error}
+        <p className="mt-4 border-s border-line-bright ps-4 text-sm leading-relaxed break-words text-muted">
+          <span className="mono-label text-fg">{r.error} </span>
+          <span dir="auto">{evalCase.error}</span>
         </p>
       ) : null}
 
@@ -81,7 +86,7 @@ function CaseRow({ evalCase }: { evalCase: EvalCase }) {
           {evalCase.assertions.map((assertion, index) => (
             <li
               key={`${assertion.type}-${index}`}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
+              className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"
             >
               <span
                 aria-hidden="true"
@@ -89,15 +94,19 @@ function CaseRow({ evalCase }: { evalCase: EvalCase }) {
                   assertion.passed ? "bg-accent" : "bg-faint"
                 }`}
               />
-              <code className="font-mono text-xs text-fg">{assertion.type}</code>
-              <span className="sr-only">{assertion.passed ? "geçti" : "başarısız"}</span>
+              <code className="font-mono text-xs break-all text-fg">{assertion.type}</code>
+              <span className="sr-only">
+                {assertion.passed ? r.assertionPassed : r.assertionFailed}
+              </span>
               {assertion.score !== null ? (
                 <span className="font-mono text-xs text-faint tabular-nums">
-                  score {assertion.score}
+                  {r.score} {assertion.score}
                 </span>
               ) : null}
               {assertion.detail ? (
-                <span className="min-w-0 flex-1 text-muted">{assertion.detail}</span>
+                <span className="min-w-0 flex-1 break-words text-muted" dir="auto">
+                  {assertion.detail}
+                </span>
               ) : null}
             </li>
           ))}
@@ -107,43 +116,48 @@ function CaseRow({ evalCase }: { evalCase: EvalCase }) {
   );
 }
 
-export function EvaluationReport({ report }: { report: EvalReport }) {
+export async function EvaluationReport({ report }: { report: EvalReport }) {
+  const { t } = await getI18n();
+  const r = t.evaluation.report;
   const { totals } = report;
 
   return (
     <div className="space-y-12">
       <div>
         <dl className="grid grid-cols-2 gap-px border border-line bg-line lg:grid-cols-5">
-          <Metric value={totals.cases} label="cases" />
-          <Metric value={totals.passed} label="passed" tone="accent" />
-          <Metric value={totals.failed} label="failed" />
+          <Metric value={totals.cases} label={r.cases} />
+          <Metric value={totals.passed} label={r.passed} tone="accent" />
+          <Metric value={totals.failed} label={r.failed} />
           <Metric
             value={`${totals.assertions_passed}/${totals.assertions}`}
-            label="assertions"
+            label={r.assertions}
           />
           <Metric
             value={totals.gemini_calls.total}
-            label="gemini calls"
-            note={`${totals.gemini_calls.agent} agent + ${totals.gemini_calls.judge} judge`}
+            label={r.geminiCalls}
+            note={format(r.callsNote, {
+              agent: totals.gemini_calls.agent,
+              judge: totals.gemini_calls.judge,
+            })}
           />
         </dl>
 
         <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-2 font-mono text-xs text-faint">
           <div className="flex gap-2">
-            <dt>suite</dt>
-            <dd className="text-muted">{report.suite || "—"}</dd>
+            <dt>{r.suite}</dt>
+            <dd className="break-all text-muted">{report.suite || "—"}</dd>
           </div>
           <div className="flex gap-2">
-            <dt>model</dt>
-            <dd className="text-muted">{report.model || "—"}</dd>
+            <dt>{r.model}</dt>
+            <dd className="break-all text-muted">{report.model || "—"}</dd>
           </div>
           <div className="flex gap-2">
-            <dt>generated_at</dt>
-            <dd className="text-muted">{report.generated_at || "—"}</dd>
+            <dt>{r.generatedAt}</dt>
+            <dd className="break-all text-muted">{report.generated_at || "—"}</dd>
           </div>
           {totals.avg_latency_ms !== null ? (
             <div className="flex gap-2">
-              <dt>avg latency</dt>
+              <dt>{r.avgLatency}</dt>
               <dd className="text-muted tabular-nums">
                 {Math.round(totals.avg_latency_ms)} ms
               </dd>
@@ -153,10 +167,10 @@ export function EvaluationReport({ report }: { report: EvalReport }) {
       </div>
 
       <section>
-        <h2 className="eyebrow mb-4">Cases</h2>
+        <h2 className="eyebrow mb-4">{r.casesHeading}</h2>
         <ul className="space-y-px border border-line">
           {report.cases.map((evalCase) => (
-            <CaseRow key={evalCase.id} evalCase={evalCase} />
+            <CaseRow key={evalCase.id} evalCase={evalCase} r={r} />
           ))}
         </ul>
       </section>

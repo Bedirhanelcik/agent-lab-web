@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { AgentResult, AgentRunPanels } from "@/components/agent-result";
+import { useI18n } from "@/components/i18n-provider";
 import { UploadPanel } from "@/components/upload-panel";
 import { DEMO_DATA_PROBLEMS, DEMO_QUESTIONS, resolveDemoRun } from "@/lib/demo-runs";
 import { normalizeAgentRun, type AgentRun, type DemoRunView } from "@/lib/agent-contract";
@@ -18,60 +19,16 @@ type Phase =
   | { kind: "error"; code: AgentApiErrorKind | "bad_response" };
 
 /**
- * Hata türlerinin insan-okunur karşılıkları. Kullanıcıya önce ne olduğu
- * anlatılır; makine kodu yalnızca ikincil, küçük bir teknik etiket olarak
- * durur.
- */
-const ERROR_COPY: Record<AgentApiErrorKind | "bad_response", { title: string; body: string }> = {
-  not_configured: {
-    title: "Agent servisi yapılandırılmamış",
-    body: "Canlı mod açık görünüyor ama agent servisinin adresi tanımlı değil. Sunucu tarafındaki yapılandırma tamamlanana kadar canlı sorgu yapılamaz.",
-  },
-  invalid_request: {
-    title: "Soru gönderilemedi",
-    body: "İstek agent servisi tarafından kabul edilmedi. Sorunun boş olmadığından emin olun ve tekrar deneyin.",
-  },
-  quota_exhausted: {
-    title: "Ücretsiz kota doldu",
-    body: "Model sağlayıcısının ücretsiz kullanım hakkı şu an tükenmiş durumda. Kota yenilendiğinde canlı sorgu yeniden çalışır; bu arada demo modundaki hazır koşulara bakabilirsiniz.",
-  },
-  generation_error: {
-    title: "Cevap üretilemedi",
-    body: "Retrieval tamamlandı ama cevap üretme adımı başarısız oldu. Bu genellikle geçici bir sorundur; tekrar denemek mantıklı.",
-  },
-  corpus_empty: {
-    title: "Henüz doküman yüklenmedi",
-    body: "Agent arama yapabileceği bir doküman bulamadı: arşiv şu an boş. Bir doküman ingest edildikten sonra sorular yanıtlanabilir.",
-  },
-  agent_unavailable: {
-    title: "Agent şu an kullanılamıyor",
-    body: "Agent servisi ayakta ama sorgu alabilecek durumda değil. Sunucu yapılandırması tamamlandığında bu uç nokta yanıt verecek.",
-  },
-  upstream_error: {
-    title: "Agent servisi hata döndürdü",
-    body: "İstek agent servisine ulaştı ama beklenmeyen bir hatayla sonuçlandı. Tekrar denemek yardımcı olmayabilir.",
-  },
-  bad_response: {
-    title: "Yanıt beklenen biçimde değil",
-    body: "Agent servisi bir yanıt döndürdü ama sözleşmeye uymuyor. Bozuk bir yanıtı cevap gibi göstermek yanıltıcı olurdu, bu yüzden hiçbir şey render edilmiyor.",
-  },
-  timeout: {
-    title: "Süre aşıldı",
-    body: "Agent beklenen süre içinde yanıt vermedi. İstek iptal edildi; sonsuz bekleme yapılmıyor.",
-  },
-  network: {
-    title: "Agent servisine ulaşılamadı",
-    body: "Bağlantı kurulamadı. Agent servisinin çalıştığından emin olun ve tekrar deneyin.",
-  },
-};
-
-/**
  * Playground.
  *
  * Demo modunda hiçbir ağ isteği yapılmaz: sorular yerel olarak hazırlanmış
  * koşularla eşleştirilir. Canlı modda istek Next.js route handler'ına gider;
  * backend adresi ve sırlar tarayıcıya hiç ulaşmaz. İki yol da aynı
  * `AgentRun` modeline normalize edildiği için render bileşenleri paylaşılır.
+ *
+ * Seçili arayüz dili istekle birlikte gönderilir (`language`), böylece Gemini
+ * cevabı o dilde üretir. Bu EK bir model çağrısı değildir: soru çevrilmez,
+ * yalnızca backend'in system prompt'una bir dil direktifi eklenir.
  */
 export function Playground({
   mode,
@@ -80,6 +37,7 @@ export function Playground({
   mode: AppMode;
   uploadEnabled: boolean;
 }) {
+  const { t, locale } = useI18n();
   const [question, setQuestion] = useState("");
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
 
@@ -92,7 +50,7 @@ export function Playground({
       const response = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question: value }),
+        body: JSON.stringify({ question: value, language: locale }),
       });
       const payload = (await response.json()) as
         | { ok: true; run: unknown }
@@ -139,12 +97,11 @@ export function Playground({
   if (dataBroken) {
     return (
       <div className="border border-line bg-surface p-5">
-        <h2 className="mono-label text-fg">Demo verisi okunamadı</h2>
+        <h2 className="mono-label text-fg">{t.playground.demoDataTitle}</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted">
-          Hazırlanmış koşular beklenen şekli taşımıyor, bu yüzden hiçbir örnek
-          gösterilmiyor. Bozuk veriyi yine de render etmek yanıltıcı olurdu.
+          {t.playground.demoDataBody}
         </p>
-        <ul className="mt-3 space-y-1 font-mono text-xs text-faint">
+        <ul className="mt-3 space-y-1 font-mono text-xs break-words text-faint">
           {DEMO_DATA_PROBLEMS.map((problem) => (
             <li key={problem}>{problem}</li>
           ))}
@@ -163,7 +120,7 @@ export function Playground({
         className="space-y-4"
       >
         <label htmlFor="question" className="eyebrow block">
-          Question
+          {t.playground.questionLabel}
         </label>
 
         <div className="flex flex-col gap-3 sm:flex-row">
@@ -174,11 +131,11 @@ export function Playground({
             value={question}
             onChange={(event) => setQuestion(event.target.value)}
             placeholder={
-              isLive
-                ? "Bir soru yazın ve Enter'a basın"
-                : "Bir soru yazın veya aşağıdaki hazır örneklerden birini seçin"
+              isLive ? t.playground.placeholderLive : t.playground.placeholderDemo
             }
             autoComplete="off"
+            // Kullanici hangi dilde yazarsa yazsin dogru yonde gorunsun.
+            dir="auto"
             disabled={busy}
             className="min-w-0 flex-1 border border-line-field bg-surface px-4 py-3 text-fg placeholder:text-faint focus:border-accent focus:outline-none disabled:border-line-bright disabled:text-muted"
           />
@@ -187,15 +144,23 @@ export function Playground({
             disabled={busy || question.trim().length === 0}
             className="mono-label shrink-0 border border-line-bright px-5 py-3 text-fg transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:border-line disabled:text-faint disabled:hover:border-line disabled:hover:text-faint"
           >
-            {busy ? (isLive ? "Running…" : "Resolving…") : "Submit"}
+            {busy
+              ? isLive
+                ? t.playground.submittingLive
+                : t.playground.submittingDemo
+              : t.playground.submit}
           </button>
         </div>
 
         <div>
-          <p className="eyebrow mb-3">{isLive ? "Example questions" : "Prepared questions"}</p>
+          <p className="eyebrow mb-3">
+            {isLive ? t.playground.examplesLive : t.playground.examplesDemo}
+          </p>
+          {/* Hazır sorular korpusun dilinde kalır: Türkçe arşivde cevabı olan
+              sorular bunlar ve çevrilmiş halleri demo eşleşmesini bozar. */}
           <ul className="flex flex-wrap gap-2">
             {DEMO_QUESTIONS.map((example) => (
-              <li key={example.id}>
+              <li key={example.id} className="min-w-0 max-w-full">
                 <button
                   type="button"
                   disabled={busy}
@@ -203,13 +168,17 @@ export function Playground({
                     setQuestion(example.question);
                     run(example.question);
                   }}
-                  className="flex max-w-full items-center gap-2 border border-line px-3 py-2 text-left text-xs text-muted transition-colors hover:border-line-bright hover:text-fg disabled:cursor-not-allowed disabled:text-faint"
+                  className="flex max-w-full items-center gap-2 border border-line px-3 py-2 text-start text-xs text-muted transition-colors hover:border-line-bright hover:text-fg disabled:cursor-not-allowed disabled:text-faint"
                 >
-                  <span className="truncate">{example.question}</span>
+                  <span className="truncate" dir="auto">
+                    {example.question}
+                  </span>
                   {/* Synthetic etiketi yalnızca hazır koşuları işaretler;
                       canlı modda hazır koşu diye bir şey yok. */}
                   {!isLive && example.synthetic ? (
-                    <span className="mono-label shrink-0 text-accent">synthetic</span>
+                    <span className="mono-label shrink-0 text-accent">
+                      {t.playground.syntheticTag}
+                    </span>
                   ) : null}
                 </button>
               </li>
@@ -224,9 +193,7 @@ export function Playground({
         {phase.kind === "idle" ? (
           <div className="border border-line border-dashed p-6">
             <p className="text-sm leading-relaxed text-muted">
-              {isLive
-                ? "Canlı mod açık: sorunuz agent servisine gönderilir, agent arama yapıp yapmayacağına kendi karar verir ve cevabı yalnızca bulduğu pasajlara dayandırır."
-                : "Demo modunda yalnızca yukarıdaki hazır sorular yanıtlanır. Bir soru seçin; agent'ın o soru için verdiği karar, yaptığı aramalar, getirdiği pasajlar ve kaynak gösteren cevabı aşağıda görünecek."}
+              {isLive ? t.playground.idleLive : t.playground.idleDemo}
             </p>
           </div>
         ) : null}
@@ -234,14 +201,15 @@ export function Playground({
         {phase.kind === "running" ? (
           <div className="border border-line bg-surface p-6">
             <p className="mono-label text-faint">
-              <span className="pulse-dot mr-2 inline-block size-1.5 rounded-full bg-accent align-middle" />
-              {isLive ? "Agent çalışıyor" : "Hazırlanmış koşu çözümleniyor"}
+              <span className="pulse-dot me-2 inline-block size-1.5 rounded-full bg-accent align-middle" />
+              {isLive ? t.playground.runningLive : t.playground.runningDemo}
             </p>
-            <p className="mt-2 truncate text-sm text-muted">{phase.question}</p>
+            <p className="mt-2 truncate text-sm text-muted" dir="auto">
+              {phase.question}
+            </p>
             {isLive ? (
               <p className="mt-3 text-xs leading-relaxed text-faint">
-                Karar, arama ve cevap üretme adımları sırayla çalışıyor; bu birkaç saniye
-                sürebilir.
+                {t.playground.runningHint}
               </p>
             ) : null}
           </div>
@@ -249,26 +217,28 @@ export function Playground({
 
         {phase.kind === "not-found" ? (
           <div className="border border-line bg-surface p-6">
-            <h2 className="mono-label text-fg">Hazırlanmış örnek bulunamadı</h2>
+            <h2 className="mono-label text-fg">{t.playground.notFoundTitle}</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-              Bu demo sorusu için hazırlanmış bir örnek bulunamadı. Demo modu canlı model
-              çağrısı yapmadığı için, sorulmayan bir soruya yakın duran başka bir koşuyu
-              göstermek yerine hiçbir şey göstermiyoruz. Yukarıdaki hazır sorulardan birini
-              seçebilirsiniz.
+              {t.playground.notFoundBody}
             </p>
-            <p className="mt-3 font-mono text-xs text-faint">
-              aranan: &ldquo;{phase.question}&rdquo;
+            <p className="mt-3 font-mono text-xs break-words text-faint">
+              {t.playground.notFoundQuery}{" "}
+              <span dir="auto">&ldquo;{phase.question}&rdquo;</span>
             </p>
           </div>
         ) : null}
 
         {phase.kind === "error" ? (
           <div className="border border-line bg-surface p-6">
-            <h2 className="mono-label text-fg">{ERROR_COPY[phase.code].title}</h2>
+            <h2 className="mono-label text-fg">{t.errors.title[phase.code]}</h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-              {ERROR_COPY[phase.code].body}
+              {t.errors.body[phase.code]}
             </p>
-            <p className="mt-3 font-mono text-xs text-faint">{phase.code}</p>
+            {/* Makine kodu teknik bir etiket: her dilde aynı kalır ki hata
+                bildirimi ve log arama anlamlı olsun. */}
+            <p className="mt-3 font-mono text-xs text-faint" dir="ltr">
+              {phase.code}
+            </p>
           </div>
         ) : null}
 

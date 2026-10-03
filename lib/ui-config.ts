@@ -13,10 +13,15 @@
 
 export type AppMode = "demo" | "live";
 
+/**
+ * Gezinme sirasi. Etiketler burada DURMAZ: her dilin sozlugunden okunur
+ * (`messages.nav`). Burada yalnizca yol ve sira var, cunku bunlar dilden
+ * bagimsiz.
+ */
 export const NAV_ITEMS = [
-  { href: "/", label: "Home" },
-  { href: "/system", label: "System" },
-  { href: "/playground", label: "Playground" },
-  { href: "/evaluation", label: "Evaluation" },
-  { href: "/about", label: "About" },
+  { href: "/" },
+  { href: "/system" },
+  { href: "/playground" },
+  { href: "/evaluation" },
+  { href: "/about" },
 ] as const;

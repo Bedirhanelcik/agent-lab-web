@@ -1,7 +1,9 @@
+"use client";
+
 import { AgentTrace } from "@/components/agent-trace";
+import { useI18n } from "@/components/i18n-provider";
 import { PassageList } from "@/components/passage-list";
 import { ToolCalls } from "@/components/tool-calls";
-import { STATUS_EXPLANATIONS, STATUS_LABELS } from "@/lib/agent-labels";
 import type { AgentRun, AgentStatus, DemoRunView } from "@/lib/agent-contract";
 
 const STATUS_TONE: Record<AgentStatus, string> = {
@@ -22,7 +24,7 @@ function Panel({
 }) {
   return (
     <section className={className}>
-      <h3 className="eyebrow mb-3">{label}</h3>
+      <h3 className="eyebrow mb-3 break-words">{label}</h3>
       {children}
     </section>
   );
@@ -36,49 +38,61 @@ function Panel({
  * normalize edildiği için tek bir render yolu yeterli. Köken etiketi (demo /
  * synthetic) kasıtlı olarak buraya değil, yalnızca demo sarmalayıcısına ait;
  * böylece canlı bir sonuçta "prepared demo run" ibaresi görünmesi mümkün değil.
+ *
+ * Cevap metni ve pasajlar backend'den geldiği gibi gösterilir: canlı modda
+ * backend onları seçilen dilde üretir, demo modunda ise kayıtlı koşunun
+ * orijinal dilinde kalırlar.
  */
 export function AgentRunPanels({ run, question }: { run: AgentRun; question: string }) {
+  const { t } = useI18n();
+
   return (
     <div className="space-y-10">
-      <Panel label="Question">
-        <p className="text-lg leading-snug text-fg">{question}</p>
+      <Panel label={t.result.question}>
+        <p className="break-words text-lg leading-snug text-fg" dir="auto">
+          {question}
+        </p>
       </Panel>
 
-      <Panel label="Status">
+      <Panel label={t.result.status}>
         <div className="flex flex-col gap-3">
           <span
-            className={`mono-label inline-flex w-fit items-center gap-2 border px-3 py-1.5 ${STATUS_TONE[run.status]}`}
+            className={`mono-label inline-flex w-fit max-w-full flex-wrap items-center gap-2 border px-3 py-1.5 ${STATUS_TONE[run.status]}`}
           >
-            {STATUS_LABELS[run.status]}
-            <code className="text-faint">{run.status}</code>
+            {t.result.statusLabels[run.status] ?? run.status}
+            <code className="text-faint" dir="ltr">
+              {run.status}
+            </code>
           </span>
           <p className="max-w-2xl text-sm leading-relaxed text-muted">
-            {STATUS_EXPLANATIONS[run.status]}
+            {t.result.statusExplanations[run.status] ?? ""}
           </p>
         </div>
       </Panel>
 
-      <Panel label="Answer">
+      <Panel label={t.result.answer}>
         <div className="border border-line bg-surface p-5">
-          <p className="leading-relaxed text-fg">{run.answer}</p>
+          <p className="break-words leading-relaxed text-fg" dir="auto">
+            {run.answer}
+          </p>
         </div>
       </Panel>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        <Panel label={`Agent trace — ${run.steps.length} adım`}>
+        <Panel label={`${t.result.trace} — ${run.steps.length} ${t.result.traceSteps}`}>
           <div className="border border-line">
             <AgentTrace steps={run.steps} />
           </div>
         </Panel>
 
-        <Panel label="Tool calls">
+        <Panel label={t.result.toolCalls}>
           <div className={run.tool_calls.length > 0 ? "border border-line" : ""}>
             <ToolCalls calls={run.tool_calls} />
           </div>
         </Panel>
       </div>
 
-      <Panel label={`Sources — ${run.sources.length}`}>
+      <Panel label={`${t.result.sources} — ${run.sources.length}`}>
         <div className={run.sources.length > 0 ? "border border-line" : ""}>
           <PassageList sources={run.sources} />
         </div>
@@ -88,6 +102,7 @@ export function AgentRunPanels({ run, question }: { run: AgentRun; question: str
 }
 
 export function AgentResult({ view }: { view: DemoRunView }) {
+  const { t } = useI18n();
   const { run } = view;
 
   return (
@@ -98,27 +113,31 @@ export function AgentResult({ view }: { view: DemoRunView }) {
           view.synthetic ? "border-accent/50 bg-surface-2" : "border-line bg-surface"
         }`}
       >
-        <p className="mono-label text-fg">
+        <p className="mono-label break-words text-fg">
           {view.synthetic ? (
-            <>
-              <span className="text-accent">Synthetic</span> — prepared demo run
-            </>
+            <span className="text-accent">{t.playground.originSynthetic}</span>
           ) : (
-            <>Prepared demo run</>
+            t.playground.originPrepared
           )}
         </p>
         <p className="mt-2 text-sm leading-relaxed text-muted">
           {view.synthetic
-            ? "Bu koşu elle kurgulanmıştır ve hiç çalıştırılmamıştır. Yalnızca başarılı sorgu yenileme akışını göstermek için vardır; gerçek bir model çıktısı değildir."
-            : "Bu çıktı daha önce gerçekten çalıştırılmış bir koşudan türetilmiştir ve burada canlı olarak üretilmemiştir."}
+            ? t.playground.originSyntheticBody
+            : t.playground.originPreparedBody}
+        </p>
+        {/* Kayıtlı koşuların metni korpusun dilinde: arayüz dili değiştiğinde
+            cevabın da değişmediğini açıkça söylemek, kullanıcıyı yanıltmamanın
+            tek dürüst yolu. */}
+        <p className="mt-2 text-sm leading-relaxed text-faint">
+          {t.playground.originLanguageNote}
         </p>
         {view.reconstructedFields.length > 0 ? (
-          <p className="mt-3 font-mono text-xs text-faint">
-            yeniden kurulan alanlar: {view.reconstructedFields.join(", ")}
+          <p className="mt-3 font-mono text-xs break-words text-faint">
+            {t.playground.reconstructedFields} {view.reconstructedFields.join(", ")}
           </p>
         ) : (
           <p className="mt-3 font-mono text-xs text-faint">
-            tüm alanlar gözlemlendi (yeniden kurulan alan yok)
+            {t.playground.reconstructedNone}
           </p>
         )}
       </div>

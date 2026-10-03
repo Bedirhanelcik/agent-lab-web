@@ -1,21 +1,16 @@
 import type { Metadata } from "next";
 
 import { GITHUB_URL, LINKEDIN_URL } from "@/lib/config";
+import { getI18n } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "About",
-  description:
-    "SENG360 dersinde görülen agentic AI konularından yola çıkarak geliştirilen bağımsız bir mühendislik projesi.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n();
+  return { title: t.meta.aboutTitle, description: t.meta.aboutDescription };
+}
 
-const STACK = [
-  { group: "Arayüz", items: ["Next.js", "TypeScript", "Tailwind CSS"] },
-  { group: "Servis", items: ["FastAPI", "Python", "Pydantic"] },
-  { group: "Retrieval", items: ["Chroma", "BM25", "RRF", "multilingual-e5-small"] },
-  { group: "Muhakeme", items: ["Gemini", "Agentic workflow", "RAG"] },
-] as const;
+export default async function AboutPage() {
+  const { t } = await getI18n();
 
-export default function AboutPage() {
   const links = [
     GITHUB_URL ? { href: GITHUB_URL, label: "GitHub" } : null,
     LINKEDIN_URL ? { href: LINKEDIN_URL, label: "LinkedIn" } : null,
@@ -26,9 +21,9 @@ export default function AboutPage() {
       <section className="relative overflow-hidden border-b border-line">
         <div aria-hidden="true" className="grid-texture" />
         <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-14 sm:px-8 sm:pt-24 sm:pb-16">
-          <p className="eyebrow reveal">The project</p>
+          <p className="eyebrow reveal">{t.about.heroEyebrow}</p>
           <h1 className="display reveal mt-6 max-w-3xl text-4xl text-fg sm:text-5xl lg:text-6xl">
-            Built as an experiment in agentic AI.
+            {t.about.heroTitle}
           </h1>
         </div>
       </section>
@@ -37,39 +32,23 @@ export default function AboutPage() {
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-24">
           <div className="grid gap-12 lg:grid-cols-[minmax(0,34rem)_1fr] lg:gap-20">
             <div className="space-y-6 text-sm leading-relaxed text-muted sm:text-base">
-              <p>
-                SENG360 dersinde agentic AI konularını görmeye başladım. Bu konular ilgimi
-                çekti ve dersin müfredatını referans alarak, kendi AI geliştirme
-                çalışmalarımı daha ileri bir seviyeye taşımak için bağımsız bir proje
-                geliştirmeye başladım.
-              </p>
-              <p>
-                Proje bir ödev teslimi değil: ders bir başlangıç noktası oldu, sistemin
-                tamamı ondan bağımsız olarak tasarlandı ve yazıldı. Amaç genel amaçlı bir
-                sohbet arayüzü üretmek değil, retrieval’ı bir tool olarak kullanan, ne
-                zaman arayacağına kendi karar veren ve kaynak göstermeden cevap vermeyen
-                bir sistem kurmak.
-              </p>
-              <p>
-                Üç parça bağımsız olarak çalışır ve bağımsız olarak test edilir: hibrit
-                retrieval katmanı, karar döngüsüne sahip agent, ve agent’ın davranışını
-                ölçen değerlendirme sistemi. Bu site onları tek bir anlatı altında
-                birleştiriyor.
-              </p>
+              {t.about.paragraphs.map((paragraph) => (
+                <p key={paragraph.slice(0, 32)}>{paragraph}</p>
+              ))}
             </div>
 
             <div className="space-y-10">
               <div>
-                <h2 className="eyebrow">Teknoloji</h2>
+                <h2 className="eyebrow">{t.about.stackHeading}</h2>
                 <dl className="mt-5 space-y-5">
-                  {STACK.map((entry) => (
-                    <div key={entry.group} className="border-l border-line pl-5">
+                  {t.about.stackGroups.map((entry) => (
+                    <div key={entry.group} className="border-s border-line ps-5">
                       <dt className="mono-label text-fg">{entry.group}</dt>
                       <dd className="mt-2 flex flex-wrap gap-2">
                         {entry.items.map((item) => (
                           <span
                             key={item}
-                            className="border border-line px-2.5 py-1 font-mono text-xs text-muted"
+                            className="border border-line px-2.5 py-1 font-mono text-xs break-all text-muted"
                           >
                             {item}
                           </span>
@@ -82,7 +61,7 @@ export default function AboutPage() {
 
               {links.length > 0 ? (
                 <div>
-                  <h2 className="eyebrow">Bağlantılar</h2>
+                  <h2 className="eyebrow">{t.about.linksHeading}</h2>
                   <ul className="mt-5 flex flex-wrap gap-3">
                     {links.map((link) => (
                       <li key={link.label}>
